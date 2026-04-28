@@ -45,7 +45,7 @@ export default function Profile() {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xl font-bold truncate">{mockUser.name}</p>
-            <p className="text-sm text-muted-foreground truncate">{mockUser.email}</p>
+            <p className="text-sm text-muted-foreground truncate">{email}</p>
             <div className="flex gap-2 mt-2">
               <span className="text-[10px] font-medium bg-primary/10 text-primary rounded-full px-2 py-0.5">
                 Blood {mockUser.bloodType}
@@ -76,7 +76,10 @@ export default function Profile() {
           </div>
         ))}
 
-        <button className="w-full glass rounded-2xl p-4 text-destructive font-semibold flex items-center justify-center gap-2">
+        <button
+          onClick={handleSignOut}
+          className="w-full glass rounded-2xl p-4 text-destructive font-semibold flex items-center justify-center gap-2 active:scale-[0.99] transition-transform"
+        >
           <LogOut className="h-4 w-4" /> Sign out
         </button>
 
