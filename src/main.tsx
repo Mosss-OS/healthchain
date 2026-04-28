@@ -15,7 +15,7 @@ createRoot(document.getElementById("root")!).render(
         logo: undefined,
       },
       embeddedWallets: {
-        createOnLogin: "users-without-wallets",
+        ethereum: { createOnLogin: "users-without-wallets" },
       },
     }}
   >
