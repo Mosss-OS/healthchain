@@ -1,8 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ChevronRight, Shield, Bell, Lock, FileText, LogOut, User } from "lucide-react";
+import { usePrivy } from "@privy-io/react-auth";
 import { PageHeader } from "@/components/PageHeader";
 import { GlassCard } from "@/components/GlassCard";
 import { mockUser } from "@/lib/mockData";
+import { privyConfigured } from "@/lib/privy";
 
 const sections = [
   {
@@ -23,6 +25,15 @@ const sections = [
 ];
 
 export default function Profile() {
+  const navigate = useNavigate();
+  const { logout, user } = usePrivy();
+  const email = user?.email?.address ?? mockUser.email;
+
+  const handleSignOut = async () => {
+    if (privyConfigured) await logout();
+    navigate("/", { replace: true });
+  };
+
   return (
     <div>
       <PageHeader title="Profile" large />
