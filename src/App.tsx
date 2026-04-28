@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
 import { AppLayout } from "./components/AppLayout";
+import { AuthGate } from "./components/AuthGate";
 import Dashboard from "./pages/Dashboard";
 import Records from "./pages/Records";
 import RecordDetail from "./pages/RecordDetail";
@@ -26,7 +27,13 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />
-          <Route element={<AppLayout />}>
+          <Route
+            element={
+              <AuthGate>
+                <AppLayout />
+              </AuthGate>
+            }
+          >
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/records" element={<Records />} />
             <Route path="/records/new" element={<AddRecord />} />
