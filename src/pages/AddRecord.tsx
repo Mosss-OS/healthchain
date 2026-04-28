@@ -155,7 +155,7 @@ export default function AddRecord() {
             <button
               onClick={next}
               disabled={(step === 1 && !type) || (step === 2 && (!title || !provider))}
-              className="bg-gradient-primary text-primary-foreground rounded-2xl px-6 py-4 font-semibold flex-[2] disabled:opacity-40 shadow-glow"
+              className="bg-primary text-primary-foreground rounded-2xl px-6 py-4 font-semibold flex-[2] disabled:opacity-40"
             >
               Continue
             </button>
@@ -163,7 +163,7 @@ export default function AddRecord() {
             <button
               onClick={submit}
               disabled={submitting}
-              className="bg-gradient-primary text-primary-foreground rounded-2xl px-6 py-4 font-semibold flex-[2] disabled:opacity-60 shadow-glow"
+              className="bg-primary text-primary-foreground rounded-2xl px-6 py-4 font-semibold flex-[2] disabled:opacity-60"
             >
               {submitting ? "Anchoring on-chain…" : "Confirm & anchor"}
             </button>

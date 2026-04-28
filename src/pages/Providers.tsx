@@ -48,7 +48,7 @@ export default function Providers() {
         <div className="space-y-2.5 pt-1">
           {list.map((p) => (
             <GlassCard key={p.id} interactive className="p-4 flex gap-3 items-center">
-              <div className="h-12 w-12 rounded-full bg-gradient-primary flex items-center justify-center text-primary-foreground font-bold">
+              <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold">
                 {p.avatar}
               </div>
               <div className="flex-1 min-w-0">
