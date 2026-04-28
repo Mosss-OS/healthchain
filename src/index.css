@@ -120,8 +120,6 @@
 
   body {
     @apply bg-background text-foreground;
-    background-image: var(--gradient-hero);
-    background-attachment: fixed;
     letter-spacing: -0.011em;
   }
 
