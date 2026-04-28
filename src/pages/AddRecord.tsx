@@ -1,193 +1,215 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "sonner";
-import { Upload, ShieldCheck, Check } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, User, Stethoscope } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { GlassCard } from "@/components/GlassCard";
-import { RecordIcon } from "@/components/RecordIcon";
-import { recordTypeMeta, RecordType } from "@/lib/mockData";
-
-const types: RecordType[] = ["consultation", "lab_result", "prescription", "imaging", "vaccination", "vitals"];
+import { mockProviders } from "@/lib/mockData";
+import { mockUser } from "@/lib/mockData";
 
 export default function AddRecord() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
-  const [type, setType] = useState<RecordType | null>(null);
+  const totalSteps = 3;
+
+  const [recordType, setRecordType] = useState<string>("");
   const [title, setTitle] = useState("");
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [description, setDescription] = useState("");
   const [provider, setProvider] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
-  const [file, setFile] = useState<File | null>(null);
-  const [submitting, setSubmitting] = useState(false);
 
-  const next = () => setStep((s) => Math.min(4, s + 1));
-  const back = () => setStep((s) => Math.max(1, s - 1));
+  const recordTypes = [
+    { value: "consultation", label: "Consultation", icon: Stethoscope },
+    { value: "lab_result", label: "Lab Result", icon: null },
+    { value: "prescription", label: "Prescription", icon: null },
+    { value: "imaging", label: "Imaging", icon: null },
+    { value: "surgery", label: "Surgery", icon: null },
+    { value: "vaccination", label: "Vaccination", icon: null },
+    { value: "vitals", label: "Vitals", icon: null },
+    { value: "discharge_summary", label: "Discharge Summary", icon: null },
+  ];
 
-  const submit = async () => {
-    setSubmitting(true);
-    await new Promise((r) => setTimeout(r, 1800));
-    setSubmitting(false);
-    toast.success("Record added on-chain", { description: "Your record is now encrypted and anchored on Base." });
+  const handleUploadComplete = (result: { cid: string; url: string; key: string }) => {
+    console.log('Upload complete:', result);
+    // In real app: save cid, url, key to form state
+  };
+
+  const handleSubmit = () => {
+    if (!recordType || !title || !date) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+    // In real app: upload to IPFS, then create record on blockchain
+    toast.success("Record added successfully!");
     navigate("/records");
   };
 
   return (
     <div>
-      <PageHeader title="Add record" back />
+      <PageHeader
+        title="Add New Record"
+        subtitle="Step {step} of {totalSteps}"
+        backTo="/records"
+      />
 
-      <div className="px-5">
+      <div className="px-4 md:px-5 mt-4 md:mt-5 max-w-2xl mx-auto">
         {/* Progress */}
-        <div className="flex gap-1.5 mb-5">
-          {[1, 2, 3, 4].map((s) => (
+        <div className="flex gap-1.5 mb-6 md:mb-8">
+          {Array.from({ length: totalSteps }).map((_, i) => (
             <div
-              key={s}
-              className={`h-1 flex-1 rounded-full transition-colors ${s <= step ? "bg-primary" : "bg-muted"}`}
+              key={i}
+              className={`h-1 flex-1 rounded-full transition-colors ${
+                i < step ? "bg-primary" : "bg-muted"
+              }`}
             />
           ))}
         </div>
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={step}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.25 }}
-            className="space-y-4"
-          >
-            {step === 1 && (
-              <>
-                <h2 className="text-2xl font-bold tracking-tight">What type of record?</h2>
-                <div className="grid grid-cols-2 gap-3">
-                  {types.map((t) => (
-                    <button
-                      key={t}
-                      onClick={() => setType(t)}
-                      className={`glass rounded-2xl p-4 text-left transition-all ${
-                        type === t ? "ring-2 ring-primary shadow-glow" : ""
-                      }`}
-                    >
-                      <RecordIcon type={t} />
-                      <p className="font-semibold mt-3">{recordTypeMeta[t].label}</p>
-                    </button>
+        {/* Step 1: Select Type */}
+        {step === 1 && (
+          <div className="space-y-3">
+            <h2 className="text-lg md:text-xl font-bold">Select Record Type</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 md:gap-3">
+              {recordTypes.map((rt) => (
+                <button
+                  key={rt.value}
+                  onClick={() => {
+                    setRecordType(rt.value);
+                    setStep(2);
+                  }}
+                  className={`p-3 md:p-4 rounded-xl border-2 transition-all min-h-[60px] md:min-h-[80px] ${
+                    recordType === rt.value
+                      ? "border-primary bg-primary/10"
+                      : "border-border hover:border-primary/50"
+                  }`}
+                >
+                  <p className="text-sm md:text-base font-semibold">{rt.label}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Details */}
+        {step === 2 && (
+          <div className="space-y-4">
+            <h2 className="text-lg md:text-xl font-bold">Record Details</h2>
+            <GlassCard className="p-4 md:p-5 space-y-4">
+              <div>
+                <label className="text-sm font-medium">Title</label>
+                <input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g., Annual Physical Exam"
+                  className="mt-1 w-full glass rounded-xl px-4 py-2.5 md:py-3 text-sm md:text-base outline-none focus:ring-2 focus:ring-primary/40"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Date of Record</label>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="mt-1 w-full glass rounded-xl px-4 py-2.5 md:py-3 text-sm md:text-base outline-none focus:ring-2 focus:ring-primary/40"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Provider</label>
+                <select
+                  value={provider}
+                  onChange={(e) => setProvider(e.target.value)}
+                  className="mt-1 w-full glass rounded-xl px-4 py-2.5 md:py-3 text-sm md:text-base outline-none focus:ring-2 focus:ring-primary/40"
+                >
+                  <option value="">Select provider...</option>
+                  {mockProviders.map((p) => (
+                    <option key={p.id} value={p.name}>
+                      {p.name} - {p.specialty}
+                    </option>
                   ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Upload File (Optional)</label>
+                <FileUpload onUploadComplete={handleUploadComplete} accept=".pdf,.jpg,.png,.dcm" />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Description</label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Add notes about this record..."
+                  rows={4}
+                  className="mt-1 w-full glass rounded-xl px-4 py-2.5 md:py-3 text-sm md:text-base outline-none focus:ring-2 focus:ring-primary/40 resize-none"
+                />
+              </div>
+            </GlassCard>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setStep(1)}
+                className="flex-1 glass rounded-xl py-2.5 md:py-3 text-sm md:text-base font-medium"
+              >
+                Back
+              </button>
+              <button
+                onClick={() => setStep(3)}
+                disabled={!title || !date}
+                className="flex-1 bg-foreground text-background rounded-xl py-2.5 md:py-3 text-sm md:text-base font-medium disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Review & Submit */}
+        {step === 3 && (
+          <div className="space-y-4">
+            <h2 className="text-lg md:text-xl font-bold">Review & Submit</h2>
+            <GlassCard className="p-4 md:p-5 space-y-3">
+              <div>
+                <p className="text-xs text-muted-foreground">Record Type</p>
+                <p className="font-semibold text-sm md:text-base">{recordTypes.find((rt) => rt.value === recordType)?.label}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Title</p>
+                <p className="font-semibold text-sm md:text-base">{title}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Date</p>
+                <p className="font-semibold text-sm md:text-base">{new Date(date).toLocaleDateString()}</p>
+              </div>
+              {provider && (
+                <div>
+                  <p className="text-xs text-muted-foreground">Provider</p>
+                  <p className="font-semibold text-sm md:text-base">{provider}</p>
                 </div>
-              </>
-            )}
-
-            {step === 2 && (
-              <>
-                <h2 className="text-2xl font-bold tracking-tight">Record details</h2>
-                <GlassCard className="p-5 space-y-4">
-                  <Field label="Title">
-                    <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Annual physical"
-                      className="w-full bg-surface-muted rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary/40" />
-                  </Field>
-                  <Field label="Provider">
-                    <input value={provider} onChange={(e) => setProvider(e.target.value)} placeholder="Dr. Sarah Johnson"
-                      className="w-full bg-surface-muted rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary/40" />
-                  </Field>
-                  <Field label="Date">
-                    <input type="date" value={date} onChange={(e) => setDate(e.target.value)}
-                      className="w-full bg-surface-muted rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary/40" />
-                  </Field>
-                </GlassCard>
-              </>
-            )}
-
-            {step === 3 && (
-              <>
-                <h2 className="text-2xl font-bold tracking-tight">Upload file</h2>
-                <label className="block">
-                  <input type="file" className="hidden" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
-                  <GlassCard className="p-10 text-center border-2 border-dashed border-primary/30 cursor-pointer">
-                    {!file ? (
-                      <>
-                        <div className="h-14 w-14 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center">
-                          <Upload className="h-6 w-6 text-primary" />
-                        </div>
-                        <p className="font-semibold mt-4">Tap to upload</p>
-                        <p className="text-sm text-muted-foreground">PDF, image or scan</p>
-                      </>
-                    ) : (
-                      <>
-                        <div className="h-14 w-14 mx-auto rounded-2xl bg-success/10 flex items-center justify-center">
-                          <Check className="h-6 w-6 text-success" />
-                        </div>
-                        <p className="font-semibold mt-4 truncate">{file.name}</p>
-                        <p className="text-sm text-muted-foreground">{(file.size / 1024).toFixed(0)} KB</p>
-                      </>
-                    )}
-                  </GlassCard>
-                </label>
-                {file && (
-                  <div className="flex items-center gap-2 text-success text-sm">
-                    <ShieldCheck className="h-4 w-4" /> File will be encrypted before upload
-                  </div>
-                )}
-              </>
-            )}
-
-            {step === 4 && (
-              <>
-                <h2 className="text-2xl font-bold tracking-tight">Review & anchor</h2>
-                <GlassCard className="p-5 space-y-3">
-                  <Row label="Type" value={type ? recordTypeMeta[type].label : "—"} />
-                  <Row label="Title" value={title || "—"} />
-                  <Row label="Provider" value={provider || "—"} />
-                  <Row label="Date" value={new Date(date).toLocaleDateString()} />
-                  <Row label="File" value={file?.name || "—"} />
-                </GlassCard>
-                <p className="text-sm text-muted-foreground text-center">
-                  This will encrypt your file, pin to IPFS, and anchor the hash on Base Sepolia.
-                </p>
-              </>
-            )}
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Controls */}
-        <div className="flex gap-3 mt-6">
-          {step > 1 && (
-            <button onClick={back} className="glass rounded-2xl px-6 py-4 font-semibold flex-1">Back</button>
-          )}
-          {step < 4 ? (
-            <button
-              onClick={next}
-              disabled={(step === 1 && !type) || (step === 2 && (!title || !provider))}
-              className="bg-primary text-primary-foreground rounded-2xl px-6 py-4 font-semibold flex-[2] disabled:opacity-40"
-            >
-              Continue
-            </button>
-          ) : (
-            <button
-              onClick={submit}
-              disabled={submitting}
-              className="bg-primary text-primary-foreground rounded-2xl px-6 py-4 font-semibold flex-[2] disabled:opacity-60"
-            >
-              {submitting ? "Anchoring on-chain…" : "Confirm & anchor"}
-            </button>
-          )}
-        </div>
+              )}
+              {description && (
+                <div>
+                  <p className="text-xs text-muted-foreground">Description</p>
+                  <p className="text-sm md:text-base">{description}</p>
+                </div>
+              )}
+            </GlassCard>
+            <div className="text-xs md:text-sm text-muted-foreground text-center">
+              This record will be encrypted and stored on IPFS, then anchored on Base blockchain.
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setStep(2)}
+                className="flex-1 glass rounded-xl py-2.5 md:py-3 text-sm md:text-base font-medium"
+              >
+                Back
+              </button>
+              <button
+                onClick={handleSubmit}
+                className="flex-1 bg-primary text-primary-foreground rounded-xl py-2.5 md:py-3 text-sm md:text-base font-semibold"
+              >
+                Add to HealthChain
+              </button>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{label}</label>
-      <div className="mt-1.5">{children}</div>
-    </div>
-  );
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between text-sm">
-      <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium">{value}</span>
     </div>
   );
 }

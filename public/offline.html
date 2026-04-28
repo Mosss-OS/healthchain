@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HealthChain - You're Offline</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', Inter, sans-serif;
+        background: #f2f2f7;
+        color: #1c1c1e;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+        text-align: center;
+      }
+      .container {
+        max-width: 400px;
+      }
+      .icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+      }
+      h1 {
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0 0 10px 0;
+      }
+      p {
+        color: #636366;
+        line-height: 1.5;
+        margin: 0 0 20px 0;
+      }
+      .button {
+        display: inline-block;
+        background: #007AFF;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 9999px;
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .dark h1 { color: #ffffff; }
+      .dark p { color: #ebebf5; }
+      .dark body { background: #000000; }
+    </style>
+  </head>
+  <body>
+    <div className="container">
+      <div className="icon">🏥</div>
+      <h1>You're Offline</h1>
+      <p>HealthChain needs an internet connection to access your medical records. Some cached content may be available.</p>
+      <a href="/" className="button">Try Again</a>
+    </div>
+    <script>
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+      }
+    </script>
+  </body>
+</html>

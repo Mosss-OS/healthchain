@@ -16,6 +16,8 @@ import Access from "./pages/Access";
 import Wallet from "./pages/Wallet";
 import Profile from "./pages/Profile";
 import Notifications from "./pages/Notifications";
+import Vitals from "./pages/Vitals";
+import Appointments from "./pages/Appointments";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +45,9 @@ const App = () => (
             <Route path="/wallet" element={<Wallet />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/notifications" element={<Notifications />} />
+            <Route path="/vitals" element={<Vitals />} />
+            <Route path="/appointments" element={<Appointments />} />
+            <Route path="/appointments/new" element={<AddRecord />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

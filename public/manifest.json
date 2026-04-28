@@ -1,0 +1,18 @@
+{
+  "name": "HealthChain",
+  "short_name": "HealthChain",
+  "description": "Decentralized healthcare records on Base L2",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "484x498",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#007AFF",
+  "background_color": "#f2f2f7",
+  "categories": ["health", "medical", "blockchain", "web3"]
+}

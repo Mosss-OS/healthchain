@@ -100,3 +100,19 @@ export const recordTypeMeta: Record<RecordType, { label: string; color: string; 
 
 export const usdcBalance = 42.5;
 export const baseBalance = 0.0125;
+
+// Mock Vitals Data
+export const mockVitals = [
+  { id: "v1", recorded_at: new Date().toISOString(), heart_rate: 68, systolic_bp: 118, diastolic_bp: 76, oxygen_saturation: 98, temperature: 36.7, weight_kg: 72.3, notes: "Morning reading" },
+  { id: "v2", recorded_at: new Date(Date.now() - 86400000).toISOString(), heart_rate: 72, systolic_bp: 120, diastolic_bp: 78, oxygen_saturation: 97, temperature: 36.8, weight_kg: 72.5, notes: "" },
+  { id: "v3", recorded_at: new Date(Date.now() - 86400000 * 2).toISOString(), heart_rate: 65, systolic_bp: 115, diastolic_bp: 75, oxygen_saturation: 99, temperature: 36.6, weight_kg: 72.2, notes: "After workout" },
+  { id: "v4", recorded_at: new Date(Date.now() - 86400000 * 3).toISOString(), heart_rate: 70, systolic_bp: 122, diastolic_bp: 80, oxygen_saturation: 98, temperature: 36.9, weight_kg: 72.8, notes: "" },
+  { id: "v5", recorded_at: new Date(Date.now() - 86400000 * 7).toISOString(), heart_rate: 68, systolic_bp: 118, diastolic_bp: 76, oxygen_saturation: 98, temperature: 36.7, weight_kg: 72.3, notes: "Weekly average" },
+];
+
+// Mock Appointments Data
+export const mockAppointments = [
+  { id: "a1", title: "Annual Physical", provider_name: "Dr. Sarah Johnson", provider_specialty: "General Practice", scheduled_at: new Date(Date.now() + 86400000 * 2).toISOString(), status: "confirmed", meeting_link: "https://meet.example.com/abc123", notes: "Bring previous records" },
+  { id: "a2", title: "Cardiology Follow-up", provider_name: "Dr. Michael Chen", provider_specialty: "Cardiology", scheduled_at: new Date(Date.now() + 86400000 * 5).toISOString(), status: "scheduled", meeting_link: "", notes: "Review stress test results" },
+  { id: "a3", title: "Dental Checkup", provider_name: "Dr. Emily Brown", provider_specialty: "Dentistry", scheduled_at: new Date(Date.now() - 86400000).toISOString(), status: "completed", meeting_link: "", notes: "Regular cleaning" },
+];

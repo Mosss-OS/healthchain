@@ -1,14 +1,15 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
+# https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
+
+# Sitemaps
+Sitemap: https://healthchain-flax.vercel.app/sitemap.xml
+
+# Disallow private routes
+Disallow: /dashboard/
+Disallow: /records/
+Disallow: /wallet/
+Disallow: /profile/
+Disallow: /notifications/
+Disallow: /access/
+Disallow: /providers/
