@@ -31,7 +31,7 @@ export function TabBar() {
                 <NavLink key={tab.path} to={tab.path} className="relative -mt-6">
                   <motion.div
                     whileTap={{ scale: 0.9 }}
-                    className="h-14 w-14 rounded-full bg-gradient-primary shadow-glow flex items-center justify-center text-primary-foreground"
+                    className="h-14 w-14 rounded-full bg-primary shadow-glow flex items-center justify-center text-primary-foreground"
                   >
                     <Icon className="h-6 w-6" strokeWidth={2.5} />
                   </motion.div>

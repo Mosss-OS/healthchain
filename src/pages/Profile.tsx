@@ -29,7 +29,7 @@ export default function Profile() {
 
       <div className="px-5 space-y-4 mt-3">
         <GlassCard className="p-6 flex items-center gap-4">
-          <div className="h-16 w-16 rounded-full bg-gradient-primary flex items-center justify-center text-primary-foreground text-xl font-bold shadow-glow">
+          <div className="h-16 w-16 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xl font-bold">
             {mockUser.avatar}
           </div>
           <div className="flex-1 min-w-0">
