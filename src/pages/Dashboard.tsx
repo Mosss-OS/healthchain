@@ -52,7 +52,7 @@ export default function Dashboard() {
 
       {/* Health score */}
       <GlassCard className="p-6 overflow-hidden relative">
-        <div className="absolute inset-0 bg-gradient-health opacity-90" />
+        <div className="absolute inset-0 bg-pink" />
         <div className="relative text-primary-foreground">
           <p className="text-sm opacity-80">Overall Health Score</p>
           <div className="flex items-end justify-between mt-2">

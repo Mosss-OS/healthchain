@@ -20,7 +20,7 @@ export default function Wallet() {
       <div className="px-5 space-y-4 mt-3">
         {/* Wallet card */}
         <GlassCard className="p-6 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-wallet opacity-95" />
+          <div className="absolute inset-0 bg-primary" />
           <div className="relative text-primary-foreground">
             <div className="flex items-center justify-between">
               <p className="text-sm opacity-80">Base Sepolia · Embedded wallet</p>

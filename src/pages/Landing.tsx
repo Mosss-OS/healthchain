@@ -1,7 +1,19 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { Shield, Zap, Lock, Activity, ArrowRight, CheckCircle2 } from "lucide-react";
+import {
+  Shield,
+  Zap,
+  Lock,
+  Activity,
+  ArrowRight,
+  CheckCircle2,
+  Mail,
+} from "lucide-react";
+import { usePrivy } from "@privy-io/react-auth";
 import { GlassCard } from "@/components/GlassCard";
+import { privyConfigured } from "@/lib/privy";
+import { toast } from "sonner";
 
 const features = [
   { icon: Shield, title: "Blockchain Secured", desc: "Every record anchored on Base L2 with cryptographic proof." },
@@ -18,23 +30,42 @@ const stats = [
 ];
 
 export default function Landing() {
+  const navigate = useNavigate();
+  const { ready, authenticated, login } = usePrivy();
+
+  useEffect(() => {
+    if (ready && authenticated) navigate("/dashboard", { replace: true });
+  }, [ready, authenticated, navigate]);
+
+  const handleLogin = () => {
+    if (!privyConfigured) {
+      toast.message("Privy not configured", {
+        description:
+          "Add VITE_PRIVY_APP_ID to your environment to enable email login. Continuing as guest.",
+      });
+      navigate("/dashboard");
+      return;
+    }
+    login();
+  };
+
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
       {/* Nav */}
       <nav className="fixed top-0 left-0 right-0 z-50 px-5 pt-4">
         <div className="mx-auto max-w-5xl glass rounded-full px-5 py-2.5 flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow">
+            <div className="h-8 w-8 rounded-xl bg-primary flex items-center justify-center">
               <Activity className="h-4 w-4 text-primary-foreground" strokeWidth={2.8} />
             </div>
             <span className="font-bold text-[17px] tracking-tight">HealthChain</span>
           </div>
-          <Link
-            to="/dashboard"
+          <button
+            onClick={handleLogin}
             className="text-[14px] font-semibold bg-foreground text-background rounded-full px-4 py-1.5 hover:opacity-90 transition"
           >
-            Open App
-          </Link>
+            Sign in
+          </button>
         </div>
       </nav>
 
@@ -57,7 +88,7 @@ export default function Landing() {
             className="text-[44px] sm:text-6xl md:text-7xl font-bold tracking-tight leading-[1.05]"
           >
             Your health records,<br />
-            <span className="text-gradient">owned by you.</span>
+            <span className="text-primary">owned by you.</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -74,13 +105,14 @@ export default function Landing() {
             transition={{ duration: 0.7, delay: 0.3 }}
             className="mt-10 flex flex-wrap items-center justify-center gap-3"
           >
-            <Link
-              to="/dashboard"
-              className="group inline-flex items-center gap-2 bg-gradient-primary text-primary-foreground rounded-full px-7 py-4 font-semibold shadow-glow hover:shadow-float transition-all"
+            <button
+              onClick={handleLogin}
+              className="group inline-flex items-center gap-2 bg-primary text-primary-foreground rounded-full px-7 py-4 font-semibold hover:opacity-90 transition"
             >
-              Get Started
+              <Mail className="h-4 w-4" />
+              Continue with email
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </Link>
+            </button>
             <a
               href="#features"
               className="glass rounded-full px-7 py-4 font-semibold hover:bg-surface-muted transition-colors"
@@ -100,11 +132,13 @@ export default function Landing() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <p className="text-xs text-muted-foreground">Overall Health Score</p>
-                  <p className="text-4xl font-bold mt-1">87<span className="text-lg text-muted-foreground">/100</span></p>
+                  <p className="text-4xl font-bold mt-1">
+                    87<span className="text-lg text-muted-foreground">/100</span>
+                  </p>
                 </div>
                 <div className="relative h-16 w-16">
                   <div className="absolute inset-0 rounded-full border-4 border-muted" />
-                  <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-primary border-r-accent rotate-45" />
+                  <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-primary rotate-45" />
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border">
@@ -121,7 +155,7 @@ export default function Landing() {
       <section id="features" className="px-5 py-20">
         <div className="mx-auto max-w-5xl">
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-center mb-12">
-            Built for <span className="text-gradient">trust</span>.
+            Built for <span className="text-primary">trust</span>.
           </h2>
           <div className="grid sm:grid-cols-2 gap-4">
             {features.map((f, i) => (
@@ -133,7 +167,7 @@ export default function Landing() {
                 transition={{ duration: 0.5, delay: i * 0.08 }}
               >
                 <GlassCard className="p-6 h-full">
-                  <div className="h-11 w-11 rounded-2xl bg-gradient-primary flex items-center justify-center mb-4 shadow-glow">
+                  <div className="h-11 w-11 rounded-2xl bg-primary flex items-center justify-center mb-4">
                     <f.icon className="h-5 w-5 text-primary-foreground" strokeWidth={2.4} />
                   </div>
                   <h3 className="text-xl font-semibold mb-1">{f.title}</h3>
@@ -151,7 +185,7 @@ export default function Landing() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
             {stats.map((s) => (
               <div key={s.l}>
-                <p className="text-3xl md:text-4xl font-bold text-gradient">{s.v}</p>
+                <p className="text-3xl md:text-4xl font-bold text-primary">{s.v}</p>
                 <p className="text-sm text-muted-foreground mt-1">{s.l}</p>
               </div>
             ))}
@@ -161,22 +195,25 @@ export default function Landing() {
 
       {/* CTA */}
       <section className="px-5 py-20">
-        <div className="mx-auto max-w-4xl relative overflow-hidden rounded-[2rem] bg-gradient-primary p-10 md:p-16 text-center shadow-float">
+        <div className="mx-auto max-w-4xl relative overflow-hidden rounded-[2rem] bg-primary p-10 md:p-16 text-center shadow-float">
           <h2 className="text-4xl md:text-5xl font-bold text-primary-foreground tracking-tight">
             Take back your<br />medical history.
           </h2>
           <p className="mt-4 text-primary-foreground/85 text-lg max-w-xl mx-auto">
             Join thousands owning their health data on-chain.
           </p>
-          <Link
-            to="/dashboard"
+          <button
+            onClick={handleLogin}
             className="inline-flex items-center gap-2 mt-8 bg-background text-foreground rounded-full px-7 py-4 font-semibold hover:scale-[1.02] transition-transform"
           >
             Launch HealthChain <ArrowRight className="h-4 w-4" />
-          </Link>
+          </button>
           <div className="mt-8 flex flex-wrap justify-center gap-4 text-primary-foreground/80 text-sm">
             {["No credit card", "Email login only", "HIPAA-aware design"].map((t) => (
-              <span key={t} className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4" />{t}</span>
+              <span key={t} className="inline-flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4" />
+                {t}
+              </span>
             ))}
           </div>
         </div>

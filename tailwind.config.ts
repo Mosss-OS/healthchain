@@ -34,12 +34,7 @@ export default {
         pink: "hsl(var(--pink))",
         teal: "hsl(var(--teal))",
       },
-      backgroundImage: {
-        "gradient-primary": "var(--gradient-primary)",
-        "gradient-health": "var(--gradient-health)",
-        "gradient-wallet": "var(--gradient-wallet)",
-        "gradient-surface": "var(--gradient-surface)",
-      },
+      backgroundImage: {},
       boxShadow: {
         card: "var(--shadow-card)",
         glow: "var(--shadow-glow)",
