@@ -145,10 +145,7 @@
   }
 
   .text-gradient {
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: hsl(var(--primary));
   }
 
   .hide-scrollbar::-webkit-scrollbar { display: none; }
