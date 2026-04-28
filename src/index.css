@@ -48,13 +48,9 @@
 
     --radius: 1.25rem;
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(230 100% 62%), hsl(265 90% 65%));
-    --gradient-health: linear-gradient(135deg, hsl(340 90% 62%), hsl(265 90% 65%));
-    --gradient-wallet: linear-gradient(135deg, hsl(210 100% 55%), hsl(180 70% 48%));
-    --gradient-surface: linear-gradient(180deg, hsl(0 0% 100% / 0.8), hsl(0 0% 100% / 0.5));
-    --gradient-hero: radial-gradient(ellipse at top, hsl(230 100% 70% / 0.25), transparent 60%),
-                    radial-gradient(ellipse at bottom right, hsl(265 90% 70% / 0.2), transparent 60%);
+    /* Solid accents (no gradients) */
+    --health: 340 90% 62%;
+    --wallet: 210 100% 55%;
 
     /* Glass */
     --glass-bg: 0 0% 100% / 0.72;
@@ -107,10 +103,6 @@
 
     --glass-bg: 240 8% 10% / 0.72;
     --glass-border: 240 8% 30% / 0.5;
-
-    --gradient-surface: linear-gradient(180deg, hsl(240 8% 14% / 0.8), hsl(240 8% 10% / 0.6));
-    --gradient-hero: radial-gradient(ellipse at top, hsl(230 100% 60% / 0.35), transparent 60%),
-                    radial-gradient(ellipse at bottom right, hsl(265 90% 55% / 0.25), transparent 60%);
 
     --shadow-card: 0 8px 24px -8px hsl(0 0% 0% / 0.5), 0 2px 6px hsl(0 0% 0% / 0.3);
     --shadow-float: 0 20px 50px -12px hsl(0 0% 0% / 0.6);
