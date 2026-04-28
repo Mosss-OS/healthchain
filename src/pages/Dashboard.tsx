@@ -19,13 +19,39 @@ const vitals = [
 ];
 
 export default function Dashboard() {
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Simulate loading (replace with real API call)
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
   const recent = mockRecords.slice(0, 3);
   const unread = mockNotifications.filter((n) => !n.read).length;
   const date = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
   const short = `${mockUser.wallet.slice(0, 6)}…${mockUser.wallet.slice(-4)}`;
 
+    if (isLoading) {
+    return (
+      <div className="px-4 md:px-5 pt-[max(1rem,env(safe-area-inset-top))] space-y-4 md:space-y-5">
+        <div className="animate-pulse space-y-4">
+          <div className="h-20 bg-surface-muted/50 rounded-2xl" />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="h-24 bg-surface-muted/50 rounded-xl" />
+            <div className="h-24 bg-surface-muted/50 rounded-xl" />
+            <div className="h-24 bg-surface-muted/50 rounded-xl" />
+            <div className="h-24 bg-surface-muted/50 rounded-xl" />
+          </div>
+          <div className="h-32 bg-surface-muted/50 rounded-xl" />
+          <div className="h-48 bg-surface-muted/50 rounded-xl" />
+        </div>
+      </div>
+    );
+  }
+
   return (
-     <div className="px-4 md:px-5 pt-[max(1rem,env(safe-area-inset-top))] space-y-4 md:space-y-5">
+    <div className="px-4 md:px-5 pt-[max(1rem,env(safe-area-inset-top))] space-y-4 md:space-y-5">
        {/* Header */}
        <div className="flex items-start justify-between pt-2">
          <div className="flex-1 min-w-0">
