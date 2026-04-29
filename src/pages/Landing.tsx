@@ -9,6 +9,10 @@ import {
   ArrowRight,
   CheckCircle2,
   Mail,
+  FileText,
+  Database,
+  CreditCard,
+  Users,
 } from "lucide-react";
 import { GlassCard } from "@/components/GlassCard";
 import { privyConfigured } from "@/lib/privy";
@@ -29,9 +33,16 @@ const stats = [
   { v: "10k+", l: "Records" },
 ];
 
+const images = {
+  hero: "https://img.freepik.com/free-vector/medical-records-concept-illustration_114360-4262.jpg?w=800",
+  blockchain: "https://img.freepik.com/free-vector/blockchain-technology-concept-illustration_114360-11997.jpg?w=600",
+  encryption: "https://img.freepik.com/free-vector/security-concept-illustration_114360-13287.jpg?w=600",
+  records: "https://img.freepik.com/free-photo/medical-banner-with-doctor-holding-tablet_23-2149641611.jpg?w=600",
+};
+
 export default function Landing() {
   const navigate = useNavigate();
-  const { handleLogin, isReady } = useAuth();
+  const { handleLogin, isReady, isAuthenticated } = useAuth();
 
   useEffect(() => {
     if (isReady && isAuthenticated) navigate("/dashboard", { replace: true });
@@ -50,9 +61,9 @@ export default function Landing() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background max-w-[70%] mx-auto md:max-w-full">
        {/* Nav */}
-       <nav className="fixed top-0 left-0 right-0 z-50 px-4 pt-3 md:px-5 md:pt-4">
+       <nav className="fixed top-0 left-0 right-0 z-50 px-4 pt-3 md:px-5 md:pt-4" style={{ maxWidth: 'inherit', margin: '0 auto', left: 0, right: 0 }}>
          <div className="mx-auto max-w-5xl glass rounded-full px-4 py-2 md:px-5 md:py-2.5 flex items-center justify-between shadow-sm">
            <div className="flex items-center gap-2">
              <div className="h-8 w-8 rounded-xl bg-primary flex items-center justify-center">
@@ -78,100 +89,150 @@ export default function Landing() {
              transition={{ duration: 0.6 }}
              className="inline-flex items-center gap-2 glass rounded-full px-3 py-1 text-xs font-medium text-muted-foreground mb-4 md:mb-6"
            >
-             <span className="h-2 w-2 rounded-full bg-success animate-pulse-glow" />
-             Live on Base Sepolia
+             <span className="relative flex h-2 w-2">
+               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
+               <span className="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
+             </span>
+             Now live on Base Sepolia
            </motion.div>
            <motion.h1
              initial={{ opacity: 0, y: 20 }}
              animate={{ opacity: 1, y: 0 }}
-             transition={{ duration: 0.7, delay: 0.1 }}
-             className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]"
+             transition={{ duration: 0.6, delay: 0.1 }}
+             className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight"
            >
-             Your health records,<br />
-             <span className="text-primary">owned by you.</span>
+             Own your <span className="text-primary">medical records</span>
            </motion.h1>
            <motion.p
              initial={{ opacity: 0, y: 20 }}
              animate={{ opacity: 1, y: 0 }}
-             transition={{ duration: 0.7, delay: 0.2 }}
-             className="mt-4 text-base md:text-lg md:mt-6 text-muted-foreground max-w-2xl mx-auto px-2"
+             transition={{ duration: 0.6, delay: 0.2 }}
+             className="mt-4 md:mt-6 text-base md:text-lg text-muted-foreground max-w-2xl mx-auto"
            >
-             A decentralized medical records platform. Encrypted on IPFS.
-             Anchored on Base. Accessible only with your consent.
+             Decentralized, patient-owned health records on Base L2. 
+             Encrypted on IPFS, anchored on blockchain. You control who sees your data.
            </motion.p>
            <motion.div
              initial={{ opacity: 0, y: 20 }}
              animate={{ opacity: 1, y: 0 }}
-             transition={{ duration: 0.7, delay: 0.3 }}
-             className="mt-8 md:mt-10 flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 px-4"
+             transition={{ duration: 0.6, delay: 0.3 }}
+             className="mt-6 md:mt-8 flex flex-col sm:flex-row items-center justify-center gap-3"
            >
              <button
                onClick={onLoginClick}
-               className="group inline-flex items-center gap-2 bg-primary text-primary-foreground rounded-full px-6 py-3.5 min-h-[44px] w-full sm:w-auto font-semibold hover:opacity-90 transition text-sm md:text-base"
+               className="w-full sm:w-auto bg-primary text-primary-foreground rounded-full px-6 py-3 md:py-3.5 font-semibold text-sm md:text-base min-h-[52px] md:min-h-[48px] hover:opacity-90 transition flex items-center justify-center gap-2"
              >
-               <Mail className="h-4 w-4" />
-               Continue with email
-               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+               Get Started
+               <ArrowRight className="h-4 w-4" />
              </button>
-             <a
-               href="#features"
-               className="glass rounded-full px-6 py-3.5 min-h-[44px] w-full sm:w-auto font-semibold hover:bg-surface-muted transition-colors text-center text-sm md:text-base"
+             <Link
+               to="/dashboard"
+               className="w-full sm:w-auto glass rounded-full px-6 py-3 md:py-3.5 font-semibold text-sm md:text-base min-h-[52px] md:min-h-[48px] flex items-center justify-center"
              >
-               Learn more
-             </a>
+               View Demo
+             </Link>
            </motion.div>
-
-           {/* Floating preview */}
+           
+           {/* Hero Image */}
            <motion.div
              initial={{ opacity: 0, y: 40 }}
              animate={{ opacity: 1, y: 0 }}
-             transition={{ duration: 0.9, delay: 0.4 }}
-             className="mt-10 md:mt-16 relative max-w-md mx-auto px-4 md:px-0"
+             transition={{ duration: 0.8, delay: 0.4 }}
+             className="mt-10 md:mt-14 relative"
            >
-             <GlassCard className="p-4 md:p-6 text-left">
-               <div className="flex items-center justify-between mb-3 md:mb-4">
-                 <div>
-                   <p className="text-xs text-muted-foreground">Overall Health Score</p>
-                   <p className="text-3xl md:text-4xl font-bold mt-1">
-                     87<span className="text-base md:text-lg text-muted-foreground">/100</span>
-                   </p>
-                 </div>
-                 <div className="relative h-12 w-12 md:h-16 md:w-16">
-                   <div className="absolute inset-0 rounded-full border-4 border-muted" />
-                   <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-primary rotate-45" />
-                 </div>
-               </div>
-               <div className="grid grid-cols-3 gap-2 md:gap-3 pt-3 md:pt-4 border-t border-border">
-                 <div><p className="text-[10px] text-muted-foreground">Heart</p><p className="font-semibold text-sm">68 bpm</p></div>
-                 <div><p className="text-[10px] text-muted-foreground">BP</p><p className="font-semibold text-sm">118/76</p></div>
-                 <div><p className="text-[10px] text-muted-foreground">SpO₂</p><p className="font-semibold text-sm">98%</p></div>
-               </div>
-             </GlassCard>
+             <div className="relative rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl border border-border/50">
+               <img 
+                 src={images.records} 
+                 alt="HealthChain Medical Records Dashboard"
+                 className="w-full h-auto object-cover"
+               />
+               <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent" />
+             </div>
            </motion.div>
-        </div>
-      </section>
+         </div>
+       </section>
 
-       {/* Features */}
-       <section id="features" className="px-4 md:px-5 py-16 md:py-20">
+       {/* Stats */}
+       <section className="py-8 md:py-12 px-4 md:px-5 bg-muted/30">
+         <div className="mx-auto max-w-5xl grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+           {stats.map((stat, i) => (
+             <motion.div
+               key={stat.l}
+               initial={{ opacity: 0, y: 20 }}
+               whileInView={{ opacity: 1, y: 0 }}
+               transition={{ duration: 0.4, delay: i * 0.1 }}
+               viewport={{ once: true }}
+               className="text-center"
+             >
+               <p className="text-2xl md:text-3xl font-bold text-primary">{stat.v}</p>
+               <p className="text-xs md:text-sm text-muted-foreground mt-1">{stat.l}</p>
+             </motion.div>
+           ))}
+         </div>
+       </section>
+
+       {/* Features with Images */}
+       <section className="py-12 md:py-20 px-4 md:px-5">
          <div className="mx-auto max-w-5xl">
-           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-center mb-8 md:mb-12">
-             Built for <span className="text-primary">trust</span>.
-           </h2>
-           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
-             {features.map((f, i) => (
+           <motion.div
+             initial={{ opacity: 0, y: 20 }}
+             whileInView={{ opacity: 1, y: 0 }}
+             viewport={{ once: true }}
+             className="text-center mb-10 md:mb-14"
+           >
+             <h2 className="text-2xl md:text-3xl font-bold">How it works</h2>
+             <p className="text-muted-foreground mt-2 md:mt-3">Your health data, your rules</p>
+           </motion.div>
+           
+           <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+             {[
+               { 
+                 title: "Upload & Encrypt", 
+                 desc: "Upload medical records that are encrypted locally before being stored on IPFS. Only you hold the keys.",
+                 icon: Lock,
+                 img: images.encryption
+               },
+               { 
+                 title: "Anchor on Blockchain", 
+                 desc: "Your record metadata is anchored on Base L2, creating an immutable audit trail of all access grants.",
+                 icon: Database,
+                 img: images.blockchain
+               },
+               { 
+                 title: "Control Access", 
+                 desc: "Grant temporary or permanent access to healthcare providers. Revoke anytime with one tap.",
+                 icon: Users,
+                 img: images.records
+               },
+               { 
+                 title: "Pay with USDC", 
+                 desc: "Accept payment in USDC for access to your records. Get paid instantly, no intermediaries.",
+                 icon: CreditCard,
+                 img: images.records
+               },
+             ].map((item, i) => (
                <motion.div
-                 key={f.title}
-                 initial={{ opacity: 0, y: 20 }}
+                 key={item.title}
+                 initial={{ opacity: 0, y: 30 }}
                  whileInView={{ opacity: 1, y: 0 }}
+                 transition={{ duration: 0.5, delay: i * 0.1 }}
                  viewport={{ once: true }}
-                 transition={{ duration: 0.5, delay: i * 0.08 }}
                >
                  <GlassCard className="p-4 md:p-6 h-full">
-                   <div className="h-10 w-10 md:h-11 md:w-11 rounded-2xl bg-primary flex items-center justify-center mb-3 md:mb-4">
-                     <f.icon className="h-4 w-4 md:h-5 md:w-5 text-primary-foreground" strokeWidth={2.4} />
+                   <div className="rounded-xl overflow-hidden mb-4">
+                     <img 
+                       src={item.img} 
+                       alt={item.title}
+                       className="w-full h-40 object-cover"
+                     />
                    </div>
-                   <h3 className="text-lg md:text-xl font-semibold mb-1">{f.title}</h3>
-                   <p className="text-sm text-muted-foreground">{f.desc}</p>
+                   <div className="flex items-center gap-3 mb-3">
+                     <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                       <item.icon className="h-5 w-5 text-primary" />
+                     </div>
+                     <h3 className="font-bold text-lg">{item.title}</h3>
+                   </div>
+                   <p className="text-muted-foreground text-sm">{item.desc}</p>
                  </GlassCard>
                </motion.div>
              ))}
@@ -179,56 +240,33 @@ export default function Landing() {
          </div>
        </section>
 
-       {/* Stats */}
-       <section className="px-4 md:px-5 py-10 md:py-12">
-         <div className="mx-auto max-w-4xl glass rounded-2xl md:rounded-3xl p-6 md:p-8">
-           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6 text-center">
-             {stats.map((s) => (
-               <div key={s.l}>
-                 <p className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary">{s.v}</p>
-                 <p className="text-xs md:text-sm text-muted-foreground mt-1">{s.l}</p>
-               </div>
-             ))}
-           </div>
-         </div>
-       </section>
-
        {/* CTA */}
-       <section className="px-4 md:px-5 py-16 md:py-20">
-         <div className="mx-auto max-w-4xl relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] bg-primary p-8 md:p-10 md:p-16 text-center shadow-float">
-           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground tracking-tight">
-             Take back your<br />medical history.
-           </h2>
-           <p className="mt-3 md:mt-4 text-primary-foreground/85 text-base md:text-lg max-w-xl mx-auto px-2">
-             Join thousands owning their health data on-chain.
+       <section className="py-12 md:py-16 px-4 md:px-5">
+         <GlassCard className="mx-auto max-w-3xl p-8 md:p-12 text-center bg-gradient-to-br from-primary/10 to-primary/5">
+           <h2 className="text-2xl md:text-3xl font-bold">Take control of your health data</h2>
+           <p className="text-muted-foreground mt-3 md:mt-4">
+             Join thousands of patients who own their medical records.
            </p>
            <button
-             onClick={handleLogin}
-             className="inline-flex items-center gap-2 mt-6 md:mt-8 bg-background text-foreground rounded-full px-6 md:px-7 py-3.5 md:py-4 font-semibold hover:scale-[1.02] transition-transform min-h-[44px] text-sm md:text-base"
+             onClick={onLoginClick}
+             className="mt-6 md:mt-8 bg-primary text-primary-foreground rounded-full px-8 py-3 md:py-4 font-semibold text-sm md:text-base min-h-[52px] hover:opacity-90 transition flex items-center justify-center gap-2 mx-auto"
            >
-             Launch HealthChain <ArrowRight className="h-4 w-4" />
+             Start Now
+             <ArrowRight className="h-4 w-4" />
            </button>
-           <div className="mt-6 md:mt-8 flex flex-col sm:flex-row flex-wrap justify-center gap-3 md:gap-4 text-primary-foreground/80 text-sm">
-             {["No credit card", "Email login only", "HIPAA-aware design"].map((t) => (
-               <span key={t} className="inline-flex items-center gap-1.5">
-                 <CheckCircle2 className="h-4 w-4" />
-                 {t}
-               </span>
-             ))}
-           </div>
-         </div>
+         </GlassCard>
        </section>
 
-      <footer className="px-5 py-10 text-center text-sm text-muted-foreground">
-        <div className="flex items-center justify-center gap-2 mb-3">
-          <img 
-            src="https://res.cloudinary.com/dv0tt80vn/image/upload/v1747391409/chub_yf9id1_d3d76e.png" 
-            alt="HealthChain" 
-            className="h-8 w-auto opacity-80" 
-          />
-        </div>
-        © 2026 HealthChain · Base Sepolia · Decentralized health, human first.
-      </footer>
+       {/* Footer */}
+       <footer className="py-8 px-4 md:px-5 border-t">
+         <div className="mx-auto max-w-5xl flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+           <div className="flex items-center gap-2">
+             <Activity className="h-4 w-4 text-primary" />
+             <span className="font-semibold">HealthChain</span>
+           </div>
+           <p>© 2024 HealthChain. Built on Base L2.</p>
+         </div>
+       </footer>
     </div>
   );
 }

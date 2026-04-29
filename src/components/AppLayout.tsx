@@ -5,7 +5,7 @@ import { TabBar } from "./TabBar";
 export function AppLayout() {
   const location = useLocation();
   return (
-    <div className="min-h-screen pb-28">
+    <div className="min-h-screen pb-28 max-w-[100%] md:max-w-[90%] lg:max-w-[70%] mx-auto">
       <AnimatePresence mode="wait">
         <motion.div
           key={location.pathname}

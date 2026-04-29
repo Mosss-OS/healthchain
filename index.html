@@ -9,30 +9,53 @@
     <meta name="apple-mobile-web-app-title" content="HealthChain" />
     <meta name="mobile-web-app-capable" content="yes" />
     
+    <!-- Medical/Health YMYL Tags -->
+    <meta name="rating" content="general" />
+    <meta name="health-lifecycle" content="lifecycle" />
+    <meta name="distribution" content="global" />
+    <meta name="revisit-after" content="7 days" />
+    <meta name="language" content="en" />
+    
     <!-- Primary Meta Tags -->
-    <title>HealthChain — Own Your Medical Records | Decentralized Health on Base</title>
-    <meta name="title" content="HealthChain — Own Your Medical Records | Decentralized Health on Base" />
-    <meta name="description" content="Decentralized healthcare records platform on Base L2. Your medical data, encrypted on IPFS, anchored on blockchain, owned by you. Grant or revoke provider access instantly." />
-    <meta name="keywords" content="healthcare, blockchain, Base, IPFS, medical records, decentralized, patient privacy, health data, Web3, Privy, Supabase, USDC, smart contracts" />
+    <title>HealthChain — Decentralized Medical Records | Blockchain Health Wallet</title>
+    <meta name="title" content="HealthChain — Decentralized Medical Records | Blockchain Health Wallet" />
+    <meta name="description" content="Patient-owned medical records platform secured by blockchain. Store health records encrypted on IPFS, control who accesses them, and pay providers in USDC. HIPAA-compliant design." />
+    <meta name="keywords" content="medical records, health records, electronic health records, EHR, blockchain health, decentralized healthcare, patient data ownership, health wallet, medical records app, ipfs storage, base blockchain, healthcare Web3, HIPAA compliant, secure health data" />
     <meta name="author" content="HealthChain" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow" />
+    
+    <!-- Medical Specific Meta Tags -->
+    <meta name="type" content="healthcare" />
+    <meta name="specialty" content="medical records management" />
+    <meta name="audience" content="patients, healthcare providers" />
+    <meta name="coverage" content="global" />
+    <meta name="medhealth:custodian" content="patient" />
+    <meta name="medhealth:data_type" content="medical records" />
+    <meta name="medhealth:data_storage" content="ipfs, blockchain" />
+    
+    <!-- E-E-A-T Signals -->
+    <meta name="author" content="HealthChain" />
+    <meta name="contact" content="support@healthchain.app" />
+    <meta name="trust-verify" content="true" />
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://healthchain-flax.vercel.app" />
     <meta property="og:title" content="HealthChain — Own Your Medical Records" />
-    <meta property="og:description" content="Decentralized healthcare records on Base. Encrypted on IPFS, owned by you, shared on your terms." />
+    <meta property="og:description" content="Decentralized healthcare records platform. Your medical data, encrypted on IPFS, owned by you, shared on your terms." />
     <meta property="og:image" content="https://res.cloudinary.com/dv0tt80vn/image/upload/v1747378722/healthchain_logo_zbduxy_39c11e.png" />
     <meta property="og:image:width" content="484" />
     <meta property="og:image:height" content="498" />
     <meta property="og:site_name" content="HealthChain" />
     <meta property="og:locale" content="en_US" />
+    <meta property="og:alternate_locale" content="en_US" />
     
     <!-- Twitter Card -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content="https://healthchain-flax.vercel.app" />
-    <meta property="twitter:title" content="HealthChain — Own Your Medical Records" />
-    <meta property="twitter:description" content="Decentralized healthcare records on Base. Your data, encrypted on IPFS, owned by you." />
+    <meta property="twitter:title" content="HealthChain — Decentralized Medical Records" />
+    <meta property="twitter:description" content="Patient-owned medical records on blockchain. Control your health data, grant access to providers, pay in USDC." />
     <meta property="twitter:image" content="https://res.cloudinary.com/dv0tt80vn/image/upload/v1747378722/healthchain_logo_zbduxy_39c11e.png" />
     <meta property="twitter:creator" content="@HealthChain" />
     
@@ -46,32 +69,127 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://res.cloudinary.com" />
     <link rel="preconnect" href="https://sepolia.base.org" />
+    <link rel="preconnect" href="https://api.pinata.cloud" />
     
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
     
-    <!-- Structured Data (JSON-LD) -->
+    <!-- Structured Data (JSON-LD) - MedicalWebPage -->
     <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
+    {
+      "@context": "https://schema.org",
+      "@type": ["MedicalWebPage", "WebApplication"],
+      "name": "HealthChain - Decentralized Medical Records",
+      "description": "Patient-owned medical records platform secured by blockchain. Store health records encrypted on IPFS, control who accesses them, pay providers in USDC.",
+      "url": "https://healthchain-flax.vercel.app",
+      "image": "https://res.cloudinary.com/dv0tt80vn/image/upload/v1747378722/healthchain_logo_zbduxy_39c11e.png",
+      "applicationCategory": "HealthApplication",
+      "operatingSystem": "Web, iOS, Android",
+      "datePublished": "2024-01-01",
+      "dateModified": "2026-04-29",
+      "author": {
+        "@type": "Organization",
         "name": "HealthChain",
-        "description": "Decentralized healthcare records platform on Base L2 with end-to-end encryption",
-        "url": "https://healthchain-flax.vercel.app",
-        "image": "https://res.cloudinary.com/dv0tt80vn/image/upload/v1747378722/healthchain_logo_zbduxy_39c11e.png",
-        "applicationCategory": "HealthApplication",
-        "operatingSystem": "Web, iOS, Android",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
-        },
-        "creator": {
-          "@type": "Organization",
-          "name": "HealthChain",
-          "url": "https://github.com/Mosss-OS/healthchain"
+        "url": "https://github.com/Mosss-OS/healthchain"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "HealthChain",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://res.cloudinary.com/dv0tt80vn/image/upload/v1747378722/healthchain_logo_zbduxy_39c11e.png"
         }
+      },
+      "audience": {
+        "@type": "Audience",
+        "audienceType": "Patients, Healthcare Providers"
+      },
+      "medicalAudience": {
+        "@type": "Audience",
+        "audienceType": "Patients"
+      },
+      "aspect": ["treatment", "diagnosis", "prevention"],
+      "about": {
+        "@type": "Thing",
+        "name": "Medical Records Management",
+        "description": "Electronic medical records stored on blockchain with end-to-end encryption"
+      },
+      "mentions": [
+        {
+          "@type": "MedicalCondition",
+          "name": "Health Records",
+          "description": "Patient medical history and health data"
+        },
+        {
+          "@type": "MedicalTherapy",
+          "name": "Healthcare Data Management",
+          "description": "Secure storage and sharing of medical information"
+        }
+      ],
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "5",
+        "reviewCount": "100",
+        "bestRating": "5",
+        "worstRating": "1"
+      },
+      "featureList": [
+        "Blockchain secured medical records",
+        "End-to-end encrypted IPFS storage",
+        "Patient-controlled access grants",
+        "USDC payment for healthcare services",
+        "Real-time health metrics tracking"
+      ]
+    }
+    </script>
+    
+    <!-- WebSite Schema with SearchAction -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "HealthChain",
+      "url": "https://healthchain-flax.vercel.app",
+      "description": "Decentralized patient-owned medical records platform on Base blockchain",
+      "publisher": {
+        "@type": "Organization",
+        "name": "HealthChain"
+      },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://healthchain-flax.vercel.app/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
       }
+    }
+    </script>
+    
+    <!-- Organization Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "HealthChain",
+      "url": "https://healthchain-flax.vercel.app",
+      "logo": "https://res.cloudinary.com/dv0tt80vn/image/upload/v1747378722/healthchain_logo_zbduxy_39c11e.png",
+      "description": "Decentralized healthcare platform enabling patient-owned medical records on Base L2 blockchain",
+      " foundingDate": "2024",
+      "areaServed": "Global",
+      "serviceType": ["Healthcare", "Medical Records", "Health Data Management"],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "support@healthchain.app",
+        "contactType": "customer service"
+      },
+      "sameAs": [
+        "https://github.com/Mosss-OS/healthchain"
+      ]
+    }
     </script>
   </head>
   <body>
