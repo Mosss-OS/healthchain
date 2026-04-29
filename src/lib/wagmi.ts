@@ -1,4 +1,4 @@
-import { createConfig, http } from 'wagmi';
+import { createConfig, http, injected } from 'wagmi';
 import { baseSepolia } from 'wagmi/chains';
 
 export const wagmiConfig = createConfig({
@@ -6,4 +6,9 @@ export const wagmiConfig = createConfig({
   transports: {
     [baseSepolia.id]: http(import.meta.env.VITE_BASE_SEPOLIA_RPC || 'https://sepolia.base.org'),
   },
+  connectors: [
+    injected({
+      shimDisconnect: true,
+    }),
+  ],
 });
