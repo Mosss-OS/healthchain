@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { verifyPrivyToken } from "../../_shared/privy.ts";
+import { verifyPrivyToken } from "../_shared/privy.ts";
 
 serve(async (req) => {
   const corsHeaders = {
@@ -15,41 +15,30 @@ serve(async (req) => {
 
   try {
     const authHeader = req.headers.get('Authorization');
-    await verifyPrivyToken(authHeader);
-
+    const privyClaims = await verifyPrivyToken(authHeader);
+    
     const url = new URL(req.url);
-    const query = url.searchParams.get('q') || '';
-    const specialty = url.searchParams.get('specialty') || '';
+    const page = parseInt(url.searchParams.get('page') || '1');
+    const limit = parseInt(url.searchParams.get('limit') || '10');
+    const offset = (page - 1) * limit;
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     );
 
-    let dbQuery = supabase
-      .from('healthcare_providers')
-      .select(`
-        *,
-        profiles:profile_id (
-          id, wallet_address, full_name, avatar_url
-        )
-      `)
-      .eq('verified', true);
-
-    if (query) {
-      dbQuery = dbQuery.or(`institution_name.ilike.%${query}%,specialty.ilike.%${query}%`);
-    }
-
-    if (specialty) {
-      dbQuery = dbQuery.eq('specialty', specialty);
-    }
-
-    const { data: providers, error } = await dbQuery;
+    const { data: records, error, count } = await supabase
+      .from('medical_records')
+      .select('*', { count: 'exact' })
+      .eq('patient_wallet', privyClaims.wallet_address || '')
+      .eq('is_active', true)
+      .order('date_of_record', { ascending: false })
+      .range(offset, offset + limit - 1);
 
     if (error) throw error;
 
     return new Response(
-      JSON.stringify({ success: true, data: providers }),
+      JSON.stringify({ success: true, data: records, count, page, limit }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (err) {

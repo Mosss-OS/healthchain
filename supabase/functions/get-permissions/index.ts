@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { verifyPrivyToken } from "../../_shared/privy.ts";
+import { verifyPrivyToken } from "../_shared/privy.ts";
 
 serve(async (req) => {
   const corsHeaders = {
@@ -24,16 +24,37 @@ serve(async (req) => {
 
     const walletAddress = privyClaims.wallet_address || '';
 
-    const { data: appointments, error } = await supabase
-      .from('appointments')
-      .select('*')
-      .or(`patient_wallet.eq.${walletAddress},provider_wallet.eq.${walletAddress}`)
-      .order('scheduled_at', { ascending: true });
+    // Get permissions where user is patient
+    const { data: grantedPermissions, error } = await supabase
+      .from('access_permissions')
+      .select(`
+        *,
+        medical_records:record_id (
+          id, title, record_type, date_of_record
+        )
+      `)
+      .eq('patient_wallet', walletAddress)
+      .eq('is_active', true);
 
     if (error) throw error;
 
+    // Get requests where user is patient
+    const { data: accessRequests, error: reqError } = await supabase
+      .from('access_requests')
+      .select('*')
+      .eq('patient_wallet', walletAddress)
+      .eq('status', 'pending');
+
+    if (reqError) throw reqError;
+
     return new Response(
-      JSON.stringify({ success: true, data: appointments }),
+      JSON.stringify({
+        success: true,
+        data: {
+          permissions: grantedPermissions,
+          pendingRequests: accessRequests,
+        }
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (err) {

@@ -1,0 +1,12 @@
+[profile.default]
+src = 'contracts'
+out = 'out'
+libs = ['lib']
+
+[profile.default.optimize]
+optimizer = true
+optimizerRuns = 200
+
+[etherscan]
+# You can set your Etherscan API key here or via environment variable
+# apiKey = "your_api_key_here"

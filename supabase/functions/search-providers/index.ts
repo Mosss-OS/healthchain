@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { verifyPrivyToken } from "../../_shared/privy.ts";
+import { verifyPrivyToken } from "../_shared/privy.ts";
 
 serve(async (req) => {
   const corsHeaders = {
@@ -15,46 +15,41 @@ serve(async (req) => {
 
   try {
     const authHeader = req.headers.get('Authorization');
-    const privyClaims = await verifyPrivyToken(authHeader);
+    await verifyPrivyToken(authHeader);
+
+    const url = new URL(req.url);
+    const query = url.searchParams.get('q') || '';
+    const specialty = url.searchParams.get('specialty') || '';
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     );
 
-    const walletAddress = privyClaims.wallet_address || '';
-
-    // Get permissions where user is patient
-    const { data: grantedPermissions, error } = await supabase
-      .from('access_permissions')
+    let dbQuery = supabase
+      .from('healthcare_providers')
       .select(`
         *,
-        medical_records:record_id (
-          id, title, record_type, date_of_record
+        profiles:profile_id (
+          id, wallet_address, full_name, avatar_url
         )
       `)
-      .eq('patient_wallet', walletAddress)
-      .eq('is_active', true);
+      .eq('verified', true);
+
+    if (query) {
+      dbQuery = dbQuery.or(`institution_name.ilike.%${query}%,specialty.ilike.%${query}%`);
+    }
+
+    if (specialty) {
+      dbQuery = dbQuery.eq('specialty', specialty);
+    }
+
+    const { data: providers, error } = await dbQuery;
 
     if (error) throw error;
 
-    // Get requests where user is patient
-    const { data: accessRequests, error: reqError } = await supabase
-      .from('access_requests')
-      .select('*')
-      .eq('patient_wallet', walletAddress)
-      .eq('status', 'pending');
-
-    if (reqError) throw reqError;
-
     return new Response(
-      JSON.stringify({
-        success: true,
-        data: {
-          permissions: grantedPermissions,
-          pendingRequests: accessRequests,
-        }
-      }),
+      JSON.stringify({ success: true, data: providers }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (err) {

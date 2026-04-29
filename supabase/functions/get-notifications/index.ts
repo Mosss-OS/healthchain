@@ -1,17 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { verifyPrivyToken } from "../../_shared/privy.ts";
-
-interface MarkReadRequest {
-  notificationIds?: string[];
-  markAll?: boolean;
-}
+import { verifyPrivyToken } from "../_shared/privy.ts";
 
 serve(async (req) => {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
   };
 
   if (req.method === 'OPTIONS') {
@@ -22,8 +17,6 @@ serve(async (req) => {
     const authHeader = req.headers.get('Authorization');
     const privyClaims = await verifyPrivyToken(authHeader);
 
-    const { notificationIds, markAll }: MarkReadRequest = await req.json();
-
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -31,28 +24,35 @@ serve(async (req) => {
 
     const walletAddress = privyClaims.wallet_address || '';
 
-    if (markAll) {
-      const { error } = await supabase
-        .from('notifications')
-        .update({ read: true })
-        .eq('user_wallet', walletAddress)
-        .eq('read', false);
+    const url = new URL(req.url);
+    const page = parseInt(url.searchParams.get('page') || '1');
+    const limit = parseInt(url.searchParams.get('limit') || '20');
+    const offset = (page - 1) * limit;
 
-      if (error) throw error;
-    } else if (notificationIds && notificationIds.length > 0) {
-      const { error } = await supabase
-        .from('notifications')
-        .update({ read: true })
-        .in('id', notificationIds)
-        .eq('user_wallet', walletAddress);
+    const { data: notifications, error, count } = await supabase
+      .from('notifications')
+      .select('*', { count: 'exact' })
+      .eq('user_wallet', walletAddress)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
 
-      if (error) throw error;
-    } else {
-      throw new Error('No notification ids provided');
-    }
+    if (error) throw error;
+
+    const { count: unreadCount } = await supabase
+      .from('notifications')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_wallet', walletAddress)
+      .eq('read', false);
 
     return new Response(
-      JSON.stringify({ success: true }),
+      JSON.stringify({
+        success: true,
+        data: notifications,
+        count,
+        unreadCount,
+        page,
+        limit,
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (err) {

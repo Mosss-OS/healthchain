@@ -1,6 +1,5 @@
 import { useWriteContract, useReadContract, useWaitForTransactionReceipt } from 'wagmi';
 import { HEALTHCHAIN_CONTRACT } from '@/lib/contracts';
-import { getWalletClient } from '@/lib/wagmi';
 
 export function useCreateRecord() {
   const { writeContractAsync, isPending, error } = useWriteContract();
@@ -113,5 +112,42 @@ export function useGetRecord() {
     isError,
     error,
     refetch,
+  };
+}
+
+export function useGetPatientRecords(patientAddress?: string) {
+  const { data, isError, error, refetch, isLoading } = useReadContract({
+    address: HEALTHCHAIN_CONTRACT.address,
+    abi: HEALTHCHAIN_CONTRACT.abi,
+    functionName: 'getPatientRecords',
+    args: patientAddress ? [patientAddress as `0x${string}`] : undefined,
+    query: {
+      enabled: !!patientAddress,
+    },
+  });
+
+  return {
+    recordIds: data as bigint[] | undefined,
+    isError,
+    error,
+    refetch,
+    isLoading,
+  };
+}
+
+export function useGetRecordDetails(recordId: bigint) {
+  const { data, isError, error, refetch, isLoading } = useReadContract({
+    address: HEALTHCHAIN_CONTRACT.address,
+    abi: HEALTHCHAIN_CONTRACT.abi,
+    functionName: 'getRecord',
+    args: [recordId],
+  });
+
+  return {
+    record: data as [bigint, string, string, string, bigint, boolean] | undefined,
+    isError,
+    error,
+    refetch,
+    isLoading,
   };
 }
