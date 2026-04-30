@@ -8,45 +8,70 @@ export function useAuth() {
   const { user, isAuthenticated, setUser, logout } = useAppStore();
   const { ready, authenticated, login, logout: privyLogout, user: privyUser } = usePrivy();
   const navigate = useNavigate();
+  const hasNavigated = useRef(false);
 
-  // Handle login success - register user in Supabase
   useEffect(() => {
-    if (ready && authenticated && privyUser) {
-      const registerUser = async () => {
+    if (ready && authenticated && privyUser && !hasNavigated.current) {
+      hasNavigated.current = true;
+      
+      const doRegistration = async () => {
         try {
-          const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/auth/register-user`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${await privyUser.getIdToken()}`,
-            },
-            body: JSON.stringify({
-              email: privyUser.email,
-              walletAddress: privyUser.wallet?.address,
-              fullName: privyUser.email?.split('@')[0],
-            }),
-          });
+          let token = '';
+          try {
+            if (privyUser.getAccessToken) {
+              token = await privyUser.getAccessToken();
+            } else if ((privyUser as unknown as Record<string, unknown>)['token']) {
+              token = (privyUser as unknown as Record<string, unknown>)['token'] as string;
+            }
+          } catch (e) {
+            console.warn('Could not get token:', e);
+          }
 
-          const { data, error } = await response.json();
-
-          if (error) throw new Error(error);
-
-          setUser(data);
-          navigate('/dashboard', { replace: true });
+          if (token) {
+            try {
+              const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/auth/register-user`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                  email: privyUser.email,
+                  walletAddress: privyUser.wallet?.address,
+                  fullName: privyUser.email?.split('@')[0],
+                }),
+              });
+              const { data, error } = await response.json();
+              if (!error) {
+                setUser(data);
+              }
+            } catch (err) {
+              console.error('Registration failed:', err);
+            }
+          }
         } catch (err) {
-          console.error('Registration failed:', err);
+          console.error('Auth setup failed:', err);
         }
+        
+        navigate('/dashboard', { replace: true });
       };
-
-      registerUser();
+      
+      doRegistration();
     }
   }, [ready, authenticated, privyUser, setUser, navigate]);
 
   const handleLogin = useCallback(() => {
+    if (authenticated || privyUser) {
+      hasNavigated.current = false;
+      navigate('/dashboard', { replace: true });
+      return;
+    }
+    hasNavigated.current = false;
     login();
-  }, [login]);
+  }, [login, authenticated, privyUser, navigate]);
 
   const handleLogout = useCallback(() => {
+    hasNavigated.current = false;
     privyLogout();
     logout();
     navigate('/', { replace: true });
