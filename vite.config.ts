@@ -10,6 +10,10 @@ export default defineConfig(({ mode }) => ({
     hmr: {
       overlay: false,
     },
+    watch: {
+      usePolling: true,
+      interval: 1000,
+    },
   },
   plugins: [react()],
   resolve: {
