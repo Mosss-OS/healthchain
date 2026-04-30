@@ -21,7 +21,7 @@ const filters: { value: string; label: string }[] = [
 export default function Records() {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<string>("all");
-  const [records, setRecords] = useState<Array<any>>([]);
+  const [records, setRecords] = useState<Array<Record<string, unknown>>>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   

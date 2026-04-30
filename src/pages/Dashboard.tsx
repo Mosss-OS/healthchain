@@ -39,15 +39,22 @@ function BlockchainStatus() {
   );
 }
 
+interface DashboardStats {
+  totalRecords: number;
+  activeRecords: number;
+  providersWithAccess: number;
+  lastUpdated: Date | null;
+}
+
 export default function Dashboard() {
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<DashboardStats>({
     totalRecords: 0,
     activeRecords: 0,
     providersWithAccess: 0,
-    lastUpdated: null as Date | null
+    lastUpdated: null,
   });
   
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   
   const { user } = usePrivy();

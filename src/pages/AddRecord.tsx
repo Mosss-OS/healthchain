@@ -9,16 +9,20 @@ import { useUploadToIPFS } from "@/hooks/useIPFS";
 import { usePrivy } from "@privy-io/react-auth";
 import { toast } from "sonner";
 
+interface WindowWithTempData extends Window {
+  tempIPFSData?: { cid: string; url: string; key: string };
+}
+
 export default function AddRecord() {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState<number>(1);
   const totalSteps = 3;
 
   const [recordType, setRecordType] = useState<string>("");
-  const [title, setTitle] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
-  const [description, setDescription] = useState("");
-  const [provider, setProvider] = useState("");
+  const [title, setTitle] = useState<string>("");
+  const [date, setDate] = useState<string>(new Date().toISOString().split("T")[0]);
+  const [description, setDescription] = useState<string>("");
+  const [provider, setProvider] = useState<string>("");
 
   const { user } = usePrivy();
   const walletAddress = user?.wallet?.address || '';
@@ -39,8 +43,7 @@ export default function AddRecord() {
   ];
 
   const handleUploadComplete = async (result: { cid: string; url: string; key: string }) => {
-    // Store IPFS data for use in final submission
-    (window as any).tempIPFSData = result;
+    (window as WindowWithTempData).tempIPFSData = result;
   };
 
   const handleSubmit = async () => {
@@ -52,8 +55,8 @@ export default function AddRecord() {
     try {
       // Step 1: Upload to IPFS if we have a file
       let ipfsHash = "";
-      if ((window as any).tempIPFSData) {
-        ipfsHash = (window as any).tempIPFSData.cid;
+      if ((window as WindowWithTempData).tempIPFSData) {
+        ipfsHash = (window as WindowWithTempData).tempIPFSData.cid;
       } else {
         // If no file uploaded, create a minimal JSON record
         const recordData = {
@@ -119,7 +122,7 @@ export default function AddRecord() {
     });
   };
 
-  // Helper to get latest record ID (simplified - in real app we'd parse from transaction)
+  // Helper to get latest record ID (simplified - in production you'd parse from transaction)
   const getLatestRecordId = async () => {
     // This is a simplified approach - in production you'd parse the transaction receipt
     // or use an event listener to get the actual record ID
@@ -130,7 +133,7 @@ export default function AddRecord() {
     <div>
       <PageHeader
         title="Add New Record"
-        subtitle="Step {step} of {totalSteps}"
+        subtitle={`Step ${step} of ${totalSteps}`}
         backTo="/records"
       />
 
@@ -150,7 +153,7 @@ export default function AddRecord() {
         {/* Step 1: Select Type */}
         {step === 1 && (
           <div className="space-y-3">
-            <h2 className="text-lg md:text-xl font-bold">Select Record Type</h2>
+            <h2 className="text-lg md:text-xl font-bold tracking-tight">Select Record Type</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 md:gap-3">
               {recordTypes.map((rt) => (
                 <button
@@ -175,7 +178,7 @@ export default function AddRecord() {
         {/* Step 2: Details */}
         {step === 2 && (
           <div className="space-y-4">
-            <h2 className="text-lg md:text-xl font-bold">Record Details</h2>
+            <h2 className="text-lg md:text-xl font-bold tracking-tight">Record Details</h2>
             <GlassCard className="p-4 md:p-5 space-y-4">
               <div>
                 <label className="text-sm font-medium">Title</label>
@@ -200,7 +203,7 @@ export default function AddRecord() {
                 <select
                   value={provider}
                   onChange={(e) => setProvider(e.target.value)}
-                  className="mt-1 w-full glass rounded-xl px-4 py-2.5 md:py-3 text-sm md:text-base outline-none focus-ring-2 focus:ring-primary/40"
+                  className="mt-1 w-full glass rounded-xl px-4 py-2.5 md:py-3 text-sm md:text-base outline-none focus:ring-2 focus:ring-primary/40"
                 >
                   <option value="">Select provider...</option>
                   {/* In a real app, this would come from the providers API */}
@@ -239,7 +242,7 @@ export default function AddRecord() {
               <button
                 onClick={() => setStep(3)}
                 disabled={!title || !date}
-                className="flex-1 bg-foreground text-background rounded-xl py-2.5 md:py-3 text-sm md:text-base font-medium disabled:opacity-50"
+                className="flex-1 bg-foreground text-background rounded-xl py-2.5 md:py-3 text-sm md:text-base font-semibold disabled:opacity-50"
               >
                 Next
               </button>
@@ -250,7 +253,7 @@ export default function AddRecord() {
         {/* Step 3: Review & Submit */}
         {step === 3 && (
           <div className="space-y-4">
-            <h2 className="text-lg md:text-xl font-bold">Review & Submit</h2>
+            <h2 className="text-lg md:text-xl font-bold tracking-tight">Review & Submit</h2>
             <GlassCard className="p-4 md:p-5 space-y-3">
               <div>
                 <p className="text-xs text-muted-foreground">Record Type</p>
@@ -276,10 +279,10 @@ export default function AddRecord() {
                   <p className="text-sm md:text-base">{description}</p>
                 </div>
               )}
-              {(window as any).tempIPFSData && (
+              {(window as WindowWithTempData).tempIPFSData && (
                 <div>
                   <p className="text-xs text-muted-foreground">IPFS Storage</p>
-                  <p className="font-semibold text-sm md:text-base">{(window as any).tempIPFSData.cid.slice(0, 10)}...</p>
+                  <p className="font-semibold text-sm md:text-base">{(window as WindowWithTempData).tempIPFSData!.cid.slice(0, 10)}...</p>
                 </div>
               )}
             </GlassCard>
