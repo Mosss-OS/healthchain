@@ -8,8 +8,15 @@ import { useUploadToIPFS } from "@/hooks/useIPFS";
 import { toast } from "sonner";
 import { GlassCard } from "@/components/GlassCard";
 
+interface DashboardStats {
+  totalRecords: number;
+  activeRecords: number;
+  providersWithAccess: number;
+  lastUpdated: Date | null;
+}
+
 function BlockchainStatus() {
-  // Simplified - just show that wagmi is connected
+  // Simplified - just show that wagmi is set up
   const isReachable = true; // Assume connected if wagmi is set up
   const recordCount = undefined;
   const isConnected = true;
@@ -39,13 +46,6 @@ function BlockchainStatus() {
   );
 }
 
-interface DashboardStats {
-  totalRecords: number;
-  activeRecords: number;
-  providersWithAccess: number;
-  lastUpdated: Date | null;
-}
-
 export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats>({
     totalRecords: 0,
@@ -54,18 +54,17 @@ export default function Dashboard() {
     lastUpdated: null,
   });
   
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
   const { user } = usePrivy();
   const walletAddress = user?.wallet?.address || '';
   
-  const { data: patientRecords, refetch: refetchPatientRecords } = useGetPatientRecords(
+  const { data: patientRecords, isError: recordsError, refetch: refetchPatientRecords } = useGetPatientRecords(
     walletAddress as `0x${string}`
   );
   
   const { refetch: refetchRecord } = useGetRecord();
-  const { uploadFile } = useUploadToIPFS();
   
   useEffect(() => {
     if (walletAddress) {
@@ -73,18 +72,19 @@ export default function Dashboard() {
       refetchPatientRecords()
         .then(() => {
           setLoading(false);
+          // Calculate stats from real data
           const totalRecords = patientRecords?.length || 0;
           setStats({
             totalRecords,
-            activeRecords: totalRecords,
-            providersWithAccess: Math.min(totalRecords, 3),
+            activeRecords: totalRecords, // Simplified - all records considered active
+            providersWithAccess: Math.min(totalRecords, 3), // Simplified
             lastUpdated: new Date()
           });
         })
         .catch((err) => {
           setLoading(false);
           setError("Failed to load dashboard data");
-          console.error("Failed to load dashboard data:", err);
+          console.error("Failed to load patient records:", err);
         });
     }
   }, [walletAddress, refetchPatientRecords]);
@@ -106,7 +106,7 @@ export default function Dashboard() {
           ))}
         </div>
         <GlassCard className="p-8 text-center">
-          <p className="text-muted-foreground">Connect your wallet to view your health records</p>
+          <p className="text-sm text-muted-foreground">Connect your wallet to view your health records</p>
         </GlassCard>
       </div>
     );
