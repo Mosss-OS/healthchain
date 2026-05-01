@@ -40,19 +40,71 @@ const App = () => (
                 </AuthGate>
               }
             >
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/records" element={<Records />} />
-              <Route path="/records/new" element={<AddRecord />} />
-              <Route path="/records/:id" element={<RecordDetail />} />
-              <Route path="/providers" element={<Providers />} />
-              <Route path="/access" element={<Access />} />
-              <Route path="/wallet" element={<Wallet />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/notifications" element={<Notifications />} />
-              <Route path="/vitals" element={<Vitals />} />
-              <Route path="/vitals/new" element={<AddVitals />} />
-              <Route path="/appointments" element={<Appointments />} />
-              <Route path="/appointments/new" element={<AddAppointment />} />
+              <Route path="/dashboard" element={
+                <ErrorBoundary name="Dashboard">
+                  <Dashboard />
+                </ErrorBoundary>
+              } />
+              <Route path="/records" element={
+                <ErrorBoundary name="Records">
+                  <Records />
+                </ErrorBoundary>
+              } />
+              <Route path="/records/new" element={
+                <ErrorBoundary name="AddRecord">
+                  <AddRecord />
+                </ErrorBoundary>
+              } />
+              <Route path="/records/:id" element={
+                <ErrorBoundary name="RecordDetail">
+                  <RecordDetail />
+                </ErrorBoundary>
+              } />
+              <Route path="/providers" element={
+                <ErrorBoundary name="Providers">
+                  <Providers />
+                </ErrorBoundary>
+              } />
+              <Route path="/access" element={
+                <ErrorBoundary name="Access">
+                  <Access />
+                </ErrorBoundary>
+              } />
+              <Route path="/wallet" element={
+                <ErrorBoundary name="Wallet">
+                  <Wallet />
+                </ErrorBoundary>
+              } />
+              <Route path="/profile" element={
+                <ErrorBoundary name="Profile">
+                  <Profile />
+                </ErrorBoundary>
+              } />
+              <Route path="/notifications" element={
+                <ErrorBoundary name="Notifications">
+                  <Notifications />
+                </ErrorBoundary>
+              } />
+              <Route path="/vitals" element={
+                <ErrorBoundary name="Vitals">
+                  <Vitals />
+                </ErrorBoundary>
+              } />
+              <Route path="/vitals/new" element={
+                <ErrorBoundary name="AddVitals">
+                  <AddVitals />
+                </ErrorBoundary>
+              } />
+              <Route path="/appointments" element={
+                <ErrorBoundary name="Appointments">
+                  <Appointments />
+                </ErrorBoundary>
+              } />
+              <Route path="/appointments/new" element={
+                <ErrorBoundary name="AddAppointment">
+                  <AddAppointment />
+                </ErrorBoundary>
+              } />
             </Route>
           </Routes>
         </ErrorBoundary>

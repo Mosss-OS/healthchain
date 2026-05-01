@@ -66,28 +66,28 @@ export default function Dashboard() {
   
   const { refetch: refetchRecord } = useGetRecord();
   
-  useEffect(() => {
-    if (walletAddress) {
-      setLoading(true);
-      refetchPatientRecords()
-        .then(() => {
-          setLoading(false);
-          // Calculate stats from real data
-          const totalRecords = patientRecords?.length || 0;
-          setStats({
-            totalRecords,
-            activeRecords: totalRecords, // Simplified - all records considered active
-            providersWithAccess: Math.min(totalRecords, 3), // Simplified
-            lastUpdated: new Date()
-          });
-        })
-        .catch((err) => {
-          setLoading(false);
-          setError("Failed to load dashboard data");
-          console.error("Failed to load patient records:", err);
-        });
-    }
-  }, [walletAddress, refetchPatientRecords]);
+   useEffect(() => {
+     if (walletAddress) {
+       setLoading(true);
+       refetchPatientRecords()
+         .then(() => {
+           setLoading(false);
+           // Calculate stats from real data
+           const totalRecords = patientRecords?.length || 0;
+           setStats({
+             totalRecords,
+             activeRecords: totalRecords, // Simplified - all records considered active
+             providersWithAccess: Math.min(totalRecords, 3), // Simplified
+             lastUpdated: new Date()
+           });
+         })
+         .catch((err) => {
+           setLoading(false);
+           setError("Failed to load dashboard data");
+           console.error("Failed to load patient records:", err);
+         });
+     }
+   }, [walletAddress, refetchPatientRecords, patientRecords?.length]);
 
   if (!walletAddress || error) {
     return (

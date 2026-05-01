@@ -1,12 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { Search, Filter, ShieldCheck, Link2 } from "lucide-react";
+import { Search, Filter, ShieldCheck, Link2, Plus, RefreshCw } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { GlassCard } from "@/components/GlassCard";
 import { RecordIcon } from "@/components/RecordIcon";
-import { useGetRecord, useGetPatientRecords } from "@/hooks/useContract";
 import { usePrivy } from "@privy-io/react-auth";
-import { toast } from "sonner";
+import { useRecords } from "@/hooks/useRecords";
 
 const filters: { value: string; label: string }[] = [
   { value: "all", label: "All" },
@@ -21,59 +20,28 @@ const filters: { value: string; label: string }[] = [
 export default function Records() {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<string>("all");
-  const [records, setRecords] = useState<Array<Record<string, unknown>>>([]);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
   const { user } = usePrivy();
   const walletAddress = user?.wallet?.address || '';
   
-  const { data: patientRecords, isError: recordsError, refetch: refetchPatientRecords } = useGetPatientRecords(
-    walletAddress as `0x${string}`
-  );
+  const { records, isLoading, refetch } = useRecords();
   
-  const { refetch: refetchRecord } = useGetRecord();
-  
-  useEffect(() => {
-    if (walletAddress) {
-      setLoading(true);
-      refetchPatientRecords()
-        .then(() => {
-          setLoading(false);
-        })
-        .catch((err) => {
-          setLoading(false);
-          setError("Failed to load records");
-          console.error("Failed to load patient records:", err);
-        });
-    }
-  }, [walletAddress, refetchPatientRecords]);
-  
-  useEffect(() => {
-    if (patientRecords && patientRecords.length > 0) {
-      // Create mock detailed records from IDs
-      const detailedRecords = patientRecords.map((recordId: bigint, index: number) => ({
-        id: recordId.toString(),
-        patient_wallet: walletAddress,
-        ipfs_hash: "QmTest...",
-        record_type: filters[index % filters.length].value,
-        date_of_record: new Date().toISOString().split('T')[0],
-        is_active: true,
-        title: `Record ${recordId}`,
-        provider: "Dr. Example",
-        institution: "HealthChain Clinic",
-      }));
-      setRecords(detailedRecords);
-    } else {
-      setRecords([]);
-    }
-  }, [patientRecords, walletAddress]);
-
   const filtered = records.filter((r) => {
     if (filter !== 'all' && r.record_type !== filter) return false;
     if (q && !r.title?.toLowerCase().includes(q.toLowerCase())) return false;
     return true;
   });
+
+  const handleRefetch = async () => {
+    setError(null);
+    try {
+      await refetch();
+    } catch (err) {
+      setError("Failed to refresh records");
+      console.error("Failed to refetch records:", err);
+    }
+  };
 
   return (
     <div>
@@ -95,8 +63,14 @@ export default function Records() {
               {f.label}
             </button>
           ))}
+          <button
+            onClick={handleRefetch}
+            className="ml-auto shrink-0 rounded-full px-3 md:px-4 py-1.5 text-xs md:text-sm font-medium bg-primary text-primary-foreground min-h-[36px] md:min-h-[40px]"
+          >
+            <RefreshCw className="h-3 w-3" />
+          </button>
         </div>
-
+        
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
@@ -106,9 +80,9 @@ export default function Records() {
             className="w-full glass rounded-xl pl-10 pr-4 py-2.5 md:py-3 text-sm outline-none focus:ring-2 focus:ring-primary/40"
           />
         </div>
-
+        
         {/* Records List */}
-        {loading ? (
+        {isLoading ? (
           <div className="space-y-2">
             {Array.from({ length: 3 }).map((_, i) => (
               <GlassCard key={i} className="p-4">

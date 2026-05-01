@@ -1,72 +1,111 @@
 import { useState } from "react";
-import { Search, BadgeCheck, Star } from "lucide-react";
+import { Search, Stethoscope, MapPin, Star, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { GlassCard } from "@/components/GlassCard";
-import { mockProviders } from "@/lib/mockData";
-
-const specialties = ["All", "General Practice", "Cardiology", "Neurology", "Pediatrics", "Oncology"];
+import { useProviders } from "@/hooks/useProviders";
 
 export default function Providers() {
   const [q, setQ] = useState("");
-  const [spec, setSpec] = useState("All");
-
-  const list = mockProviders.filter((p) => {
-    if (spec !== "All" && p.specialty !== spec) return false;
-    if (q && !`${p.name} ${p.institution}`.toLowerCase().includes(q.toLowerCase())) return false;
-    return true;
+  const { providers, isLoading, error, refetch } = useProviders(q);
+  const filtered = providers.filter((p) => {
+    if (!q) return true;
+    const query = q.toLowerCase();
+    return (
+      p.profiles?.full_name?.toLowerCase().includes(query) ||
+      p.specialty?.toLowerCase().includes(query) ||
+      p.institution_name?.toLowerCase().includes(query)
+    );
   });
+
+  const handleRefetch = async () => {
+    try {
+      await refetch();
+    } catch (err) {
+      console.error("Failed to refetch providers:", err);
+    }
+  };
 
   return (
     <div>
-      <PageHeader title="Providers" subtitle="Connect with verified doctors" large />
+      <PageHeader title="Providers" subtitle={`${providers.length} verified`} large>
+        <button
+          onClick={handleRefetch}
+          className="text-xs md:text-sm text-primary font-medium min-h-[44px] flex items-center"
+        >
+          Refresh
+        </button>
+      </PageHeader>
 
-      <div className="px-5 space-y-3 mt-3">
+      <div className="px-4 md:px-5 space-y-4 mt-3">
+        {/* Search */}
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search providers..."
-            className="w-full glass rounded-full pl-11 pr-4 py-3 text-[15px] outline-none focus:ring-2 focus:ring-primary/40"
+            placeholder="Search by name, specialty, or institution..."
+            className="w-full glass rounded-xl pl-10 pr-4 py-2.5 md:py-3 text-sm outline-none focus:ring-2 focus:ring-primary/40"
           />
         </div>
 
-        <div className="flex gap-2 overflow-x-auto hide-scrollbar -mx-1 px-1 pb-1">
-          {specialties.map((s) => (
-            <button
-              key={s}
-              onClick={() => setSpec(s)}
-              className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
-                spec === s ? "bg-foreground text-background" : "glass"
-              }`}
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-
-        <div className="space-y-2.5 pt-1">
-          {list.map((p) => (
-            <GlassCard key={p.id} interactive className="p-4 flex gap-3 items-center">
-              <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold">
-                {p.avatar}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <p className="font-semibold truncate">{p.name}</p>
-                  {p.verified && <BadgeCheck className="h-4 w-4 text-primary shrink-0" />}
-                </div>
-                <p className="text-xs text-muted-foreground truncate">{p.specialty} · {p.institution}</p>
-                <div className="flex items-center gap-1 mt-1 text-xs">
-                  <Star className="h-3 w-3 fill-warning text-warning" />
-                  <span className="font-semibold">{p.rating}</span>
-                </div>
-              </div>
-              <button className="bg-primary text-primary-foreground rounded-full px-4 py-2 text-sm font-semibold">
-                Connect
-              </button>
+        {/* List */}
+        <div className="space-y-2">
+          {isLoading ? (
+            <div className="space-y-2">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <GlassCard key={i} className="p-3 md:p-4 flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-muted animate-pulse shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <div className="h-4 w-32 bg-muted animate-pulse rounded" />
+                    <div className="mt-1 h-3 w-48 bg-muted animate-pulse rounded" />
+                  </div>
+                  <div className="text-right shrink-0">
+                    <div className="h-4 w-16 bg-muted animate-pulse rounded" />
+                    <div className="mt-1 h-3 w-12 bg-muted animate-pulse rounded" />
+                  </div>
+                </GlassCard>
+              ))}
+            </div>
+          ) : error ? (
+            <GlassCard className="p-8 text-center">
+              <p className="text-destructive">Failed to load providers</p>
             </GlassCard>
-          ))}
+          ) : filtered.length === 0 ? (
+            <GlassCard className="p-8 text-center">
+              <p className="text-muted-foreground">No providers found</p>
+            </GlassCard>
+          ) : (
+            filtered.map((p) => (
+              <GlassCard key={p.id} className="p-3 md:p-4 flex items-center gap-3 active:scale-[0.98] transition-transform">
+                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                  <span className="text-sm font-bold text-primary">
+                    {p.profiles?.full_name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'DR'}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm md:text-base truncate">{p.profiles?.full_name || 'Unknown Provider'}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
+                    <Stethoscope className="h-3 w-3 shrink-0" />
+                    {p.specialty}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
+                    <MapPin className="h-3 w-3 shrink-0" />
+                    {p.institution_name}
+                  </p>
+                </div>
+                <div className="text-right shrink-0">
+                  {p.verified && (
+                    <span className="inline-flex items-center gap-1 text-xs font-medium text-success">
+                      <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Verified
+                    </span>
+                  )}
+                </div>
+              </GlassCard>
+            ))
+          )}
         </div>
       </div>
     </div>

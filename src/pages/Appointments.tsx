@@ -1,14 +1,17 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Plus, Calendar, Clock, Video, MapPin } from "lucide-react";
+import { Link, useRouter } from "react-router-dom";
+import { Plus, Calendar, Clock, Video, MapPin, Trash2 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { GlassCard } from "@/components/GlassCard";
-import { mockAppointments } from "@/lib/mockData";
+import { useAppointments } from "@/hooks/useAppointments";
 
 export default function Appointments() {
   const [filter, setFilter] = useState<"upcoming" | "past">("upcoming");
-
-  const filtered = mockAppointments.filter((a) => {
+  const router = useRouter();
+  
+  const { appointments, isLoading, error, refetch } = useAppointments();
+  
+  const filtered = appointments.filter((a) => {
     const aptDate = new Date(a.scheduled_at);
     const now = new Date();
     if (filter === "upcoming") {
@@ -27,9 +30,18 @@ export default function Appointments() {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    try {
+      await (await fetch(`/api/appointments/${id}`, { method: 'DELETE' }));
+      refetch();
+    } catch (err) {
+      console.error('Delete failed:', err);
+    }
+  };
+
   return (
     <div>
-      <PageHeader title="Appointments" subtitle={`${mockAppointments.length} total`} large />
+      <PageHeader title="Appointments" subtitle={`${appointments.length} total`} large />
 
       <div className="px-4 md:px-5 space-y-4 mt-3 md:space-y-5">
         {/* Filter */}
@@ -58,50 +70,81 @@ export default function Appointments() {
 
         {/* List */}
         <div className="space-y-2">
-          {filtered.map((apt) => (
-            <GlassCard key={apt.id} className="p-3 md:p-4">
-              <div className="flex items-start gap-3">
-                <div className={`p-2 rounded-xl ${getStatusColor(apt.status)}`}>
-                  {apt.meeting_link ? (
-                    <Video className="h-4 w-4" />
-                  ) : (
-                    <MapPin className="h-4 w-4" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="font-semibold text-sm md:text-base truncate">{apt.title}</p>
-                    <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${getStatusColor(apt.status)}`}>
-                      {apt.status}
-                    </span>
+          {isLoading ? (
+            <div className="space-y-2">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <GlassCard key={i} className="p-3 md:p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-xl bg-muted/10">
+                      <Calendar className="h-4 w-4 text-muted-foreground animate-pulse" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="font-semibold text-sm md:text-base truncate animate-pulse h-4 w-32 bg-muted/20 rounded" />
+                        <span className="text-xs px-2 py-0.5 rounded-full shrink-0 bg-muted/20 animate-pulse h-6 w-20" />
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5 animate-pulse h-4 w-32 bg-muted/20 rounded" />
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1.5">
+                        <Clock className="h-3 w-3 shrink-0 animate-pulse" />
+                        <span className="text-primary animate-pulse h-4 w-20 bg-primary/10 rounded" />
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">{apt.provider_name} · {apt.provider_specialty}</p>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1.5">
-                    <Clock className="h-3 w-3 shrink-0" />
-                    {new Date(apt.scheduled_at).toLocaleString(undefined, {
-                      month: "short",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                    {apt.meeting_link && <span className="ml-2 text-primary">Video call</span>}
-                  </div>
-                  {apt.notes && (
-                    <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{apt.notes}</p>
-                  )}
-                </div>
-              </div>
-            </GlassCard>
-          ))}
-
-          {filtered.length === 0 && (
+                </GlassCard>
+              ))}
+            </div>
+          ) : error ? (
             <GlassCard className="p-8 md:p-10 text-center">
-              <Calendar className="h-8 w-8 mx-auto text-muted-foreground" />
-              <p className="mt-3 font-semibold">No appointments</p>
-              <p className="text-sm text-muted-foreground">
-                {filter === "upcoming" ? "No upcoming appointments" : "No past appointments"}
-              </p>
+              <p className="text-destructive">Failed to load appointments: {error}</p>
             </GlassCard>
+          ) : (
+            <>
+              {filtered.map((apt) => (
+                <GlassCard key={apt.id} className="p-3 md:p-4">
+                  <div className="flex items-start gap-3">
+                    <div className={`p-2 rounded-xl ${getStatusColor(apt.status)}`}>
+                      {apt.meeting_link ? (
+                        <Video className="h-4 w-4" />
+                      ) : (
+                        <MapPin className="h-4 w-4" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="font-semibold text-sm md:text-base truncate">{apt.title}</p>
+                        <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${getStatusColor(apt.status)}`}>
+                          {apt.status}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">{apt.provider_name} · {apt.provider_specialty}</p>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1.5">
+                        <Clock className="h-3 w-3 shrink-0" />
+                        {new Date(apt.scheduled_at).toLocaleString(undefined, {
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                        {apt.meeting_link && <span className="ml-2 text-primary">Video call</span>}
+                      </div>
+                      {apt.notes && (
+                        <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{apt.notes}</p>
+                      )}
+                    </div>
+                  </div>
+                </GlassCard>
+              ))}
+              
+              {filtered.length === 0 && (
+                <GlassCard className="p-8 md:p-10 text-center">
+                  <Calendar className="h-8 w-8 mx-auto text-muted-foreground" />
+                  <p className="mt-3 font-semibold">No appointments</p>
+                  <p className="text-sm text-muted-foreground">
+                    {filter === "upcoming" ? "No upcoming appointments" : "No past appointments"}
+                  </p>
+                </GlassCard>
+              )}
+            </>
           )}
         </div>
       </div>

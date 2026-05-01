@@ -24,6 +24,15 @@ export function FileUpload({ onUploadComplete, accept = "*", maxSize = 10 * 1024
     setIsDragging(false);
   }, []);
 
+  const handleFile = useCallback((f: File) => {
+    if (f.size > maxSize) {
+      setError(`File too large. Max size is ${maxSize / 1024 / 1024}MB`);
+      return;
+    }
+    setFile(f);
+    setError(null);
+  }, [maxSize, setError, setFile]);
+
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(false);
@@ -32,23 +41,14 @@ export function FileUpload({ onUploadComplete, accept = "*", maxSize = 10 * 1024
     if (files.length > 0) {
       handleFile(files[0]);
     }
-  }, []);
+  }, [handleFile]);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      handleFile(files[0]);
-    }
-  };
-
-  const handleFile = (f: File) => {
-    if (f.size > maxSize) {
-      setError(`File too large. Max size is ${maxSize / 1024 / 1024}MB`);
-      return;
-    }
-    setFile(f);
-    setError(null);
-  };
+   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+     const files = e.target.files;
+     if (files && files.length > 0) {
+       handleFile(files[0]);
+     }
+   };
 
   const handleUpload = async () => {
     if (!file) return;

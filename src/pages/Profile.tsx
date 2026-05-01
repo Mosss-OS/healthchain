@@ -1,10 +1,29 @@
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronRight, Shield, Bell, Lock, FileText, LogOut, User } from "lucide-react";
+import { ChevronRight, Shield, Bell, Lock, FileText, LogOut, User, Loader2 } from "lucide-react";
 import { usePrivy } from "@privy-io/react-auth";
 import { PageHeader } from "@/components/PageHeader";
 import { GlassCard } from "@/components/GlassCard";
-import { mockUser } from "@/lib/mockData";
 import { privyConfigured } from "@/lib/privy";
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase';
+
+interface Profile {
+  id: string;
+  privy_user_id: string;
+  wallet_address: string;
+  email: string;
+  full_name?: string;
+  date_of_birth?: string;
+  gender?: 'male' | 'female' | 'other' | 'prefer_not_to_say';
+  blood_type?: string;
+  phone?: string;
+  address?: string;
+  role: 'patient' | 'provider' | 'admin';
+  avatar_url?: string;
+  onboarded: boolean;
+  created_at: string;
+  updated_at: string;
+}
 
 const sections = [
   {
@@ -26,12 +45,39 @@ const sections = [
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { logout, user } = usePrivy();
-  const email = user?.email?.address ?? mockUser.email;
+  const { logout, user, ready } = usePrivy();
+  const email = user?.email?.address ?? '';
+  const walletAddress = user?.wallet?.address || '';
+
+  // Fetch profile from Supabase
+  const { data: profile, isLoading, error } = useQuery({
+    queryKey: ['profile', walletAddress],
+    queryFn: async () => {
+      if (!walletAddress) return null;
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('wallet_address', walletAddress)
+        .single();
+
+      if (error) throw error;
+      return data as Profile;
+    },
+    enabled: !!walletAddress && ready,
+  });
 
   const handleSignOut = async () => {
     if (privyConfigured) await logout();
     navigate("/", { replace: true });
+  };
+
+  // Get user initials for avatar
+  const getInitials = () => {
+    if (profile?.full_name) {
+      return profile.full_name.split(' ').map(n => n[0]).join('').slice(0, 2);
+    }
+    return email ? email[0].toUpperCase() : 'U';
   };
 
   return (
@@ -39,23 +85,45 @@ export default function Profile() {
       <PageHeader title="Profile" large />
 
       <div className="px-5 space-y-4 mt-3">
-        <GlassCard className="p-6 flex items-center gap-4">
-          <div className="h-16 w-16 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xl font-bold">
-            {mockUser.avatar}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xl font-bold truncate">{mockUser.name}</p>
-            <p className="text-sm text-muted-foreground truncate">{email}</p>
-            <div className="flex gap-2 mt-2">
-              <span className="text-[10px] font-medium bg-primary/10 text-primary rounded-full px-2 py-0.5">
-                Blood {mockUser.bloodType}
-              </span>
-              <span className="text-[10px] font-medium bg-success/10 text-success rounded-full px-2 py-0.5">
-                Verified
-              </span>
+        {isLoading ? (
+          <GlassCard className="p-6 flex items-center gap-4">
+            <div className="h-16 w-16 rounded-full bg-muted animate-pulse" />
+            <div className="flex-1 min-w-0">
+              <div className="h-6 w-32 bg-muted animate-pulse rounded" />
+              <div className="mt-2 h-4 w-48 bg-muted animate-pulse rounded" />
+              <div className="mt-2 flex gap-2">
+                <div className="h-6 w-20 bg-muted animate-pulse rounded-full" />
+                <div className="h-6 w-20 bg-muted animate-pulse rounded-full" />
+              </div>
             </div>
-          </div>
-        </GlassCard>
+          </GlassCard>
+        ) : error ? (
+          <GlassCard className="p-6 text-center">
+            <p className="text-destructive">Failed to load profile</p>
+          </GlassCard>
+        ) : (
+          <GlassCard className="p-6 flex items-center gap-4">
+            <div className="h-16 w-16 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xl font-bold">
+              {getInitials()}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xl font-bold truncate">{profile?.full_name || 'User'}</p>
+              <p className="text-sm text-muted-foreground truncate">{email}</p>
+              <div className="flex gap-2 mt-2">
+                {profile?.blood_type && (
+                  <span className="text-[10px] font-medium bg-primary/10 text-primary rounded-full px-2 py-0.5">
+                    Blood {profile.blood_type}
+                  </span>
+                )}
+                {profile?.onboarded && (
+                  <span className="text-[10px] font-medium bg-success/10 text-success rounded-full px-2 py-0.5">
+                    Verified
+                  </span>
+                )}
+              </div>
+            </div>
+          </GlassCard>
+        )}
 
         {sections.map((s) => (
           <div key={s.title}>

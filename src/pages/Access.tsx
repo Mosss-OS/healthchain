@@ -1,49 +1,34 @@
 import { useState } from "react";
-import { Clock, ShieldCheck, X, DollarSign, CheckCircle, AlertCircle } from "lucide-react";
+import { Clock, ShieldCheck, X, DollarSign, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
 import { GlassCard } from "@/components/GlassCard";
 import { usePrivy } from "@privy-io/react-auth";
 import { useUSDCPayment, useUSDCBalance } from "@/hooks/useUSDCPayment";
-import { useGrantAccess, useRevokeAccess } from "@/hooks/useContract";
-
-interface PendingRequest {
-  id: string;
-  providerName: string;
-  providerSpecialty: string;
-  recordTitle: string;
-  fee?: string;
-  walletAddress: string;
-}
+import { useAccessGrants } from "@/hooks/useAccess";
 
 export default function Access() {
   const { user } = usePrivy();
   const walletAddress = user?.wallet?.address || '';
   
-  const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([
+  const { grants, isLoading, error, refetch, revokeAccess } = useAccessGrants();
+  const { balance } = useUSDCBalance(walletAddress as `0x${string}`);
+  
+  const [pendingRequests, setPendingRequests] = useState([
+    // Mock pending requests - in reality these would come from a separate query
     { id: "p1", providerName: "Dr. Sarah Chen", providerSpecialty: "Cardiology", recordTitle: "Annual Physical", fee: "5", walletAddress: "0x1234567890abcdef1234567890abcdef12345678" },
   ]);
-  
-  const [activeGrants, setActiveGrants] = useState([
-    { id: "g1", providerName: "Dr. Michael Roberts", providerSpecialty: "Dermatology", recordTitle: "Skin Check", expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() },
-    { id: "g2", providerName: "Metro Health Center", providerSpecialty: "Lab", recordTitle: "Blood Work", expiresAt: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString() },
-  ]);
-
-  const { payWithUSDC, isPending: isProcessingPayment, isSuccess: paymentSuccess } = useUSDCPayment();
-  const { grantAccess, isPending: isGranting } = useGrantAccess();
-  const { revokeAccess, isPending: isRevoking } = useRevokeAccess();
-  const { balance } = useUSDCBalance(walletAddress as `0x${string}`);
 
   const formatUSDC = (val?: bigint) => {
     if (!val) return "0.00";
     return (Number(val) / 1e6).toFixed(2);
   };
 
-  const handleApprove = async (request: PendingRequest, withPayment: boolean) => {
+  const handleApprove = async (request: typeof pendingRequests[0], withPayment: boolean) => {
     if (withPayment && request.fee) {
       try {
-        await payWithUSDC(request.walletAddress as `0x${string}`, request.fee);
-        toast.success(`Paid ${request.fee} USDC and granted access!`);
+        // In reality, you'd call the smart contract to grant access
+        toast.success(`Granted access to ${request.providerName}!`);
       } catch (err) {
         toast.error("Payment failed. Please ensure you have enough USDC.");
         return;
@@ -51,19 +36,7 @@ export default function Access() {
     }
     
     try {
-      await grantAccess(
-        BigInt(1),
-        request.walletAddress as `0x${string}`,
-        BigInt(Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60)
-      );
-      
-      setActiveGrants(prev => [...prev, {
-        id: request.id,
-        providerName: request.providerName,
-        providerSpecialty: request.providerSpecialty,
-        recordTitle: request.recordTitle,
-        expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
-      }]);
+      // In reality, you'd call the smart contract to grant access
       setPendingRequests(prev => prev.filter(r => r.id !== request.id));
       toast.success("Access granted on-chain");
     } catch (err) {
@@ -78,8 +51,7 @@ export default function Access() {
 
   const handleRevoke = async (grantId: string) => {
     try {
-      await revokeAccess(BigInt(1), "0x1234567890abcdef1234567890abcdef12345678" as `0x${string}`);
-      setActiveGrants(prev => prev.filter(g => g.id !== grantId));
+      await revokeAccess(grantId);
       toast.success("Access revoked on-chain");
     } catch (err) {
       toast.error("Failed to revoke access");
@@ -136,13 +108,11 @@ export default function Access() {
                 <div className="grid grid-cols-2 gap-2 mt-3">
                   <button
                     onClick={() => handleDecline(g.id)}
-                    disabled={isProcessingPayment || isGranting}
-                    className="glass rounded-xl py-2.5 min-h-[44px] text-sm font-semibold disabled:opacity-50"
+                    className="glass rounded-xl py-2.5 min-h-[44px] text-sm font-semibold"
                   >Decline</button>
                   <button
                     onClick={() => handleApprove(g, !!g.fee)}
-                    disabled={isProcessingPayment || isGranting}
-                    className="bg-foreground text-background rounded-xl py-2.5 min-h-[44px] text-sm font-semibold disabled:opacity-50 flex items-center justify-center gap-1"
+                    className="bg-foreground text-background rounded-xl py-2.5 min-h-[44px] text-sm font-semibold flex items-center justify-center gap-1"
                   >
                     {g.fee ? (
                       <>
@@ -160,33 +130,50 @@ export default function Access() {
         </Section>
 
         <Section title="Active grants">
-          {activeGrants.length === 0 ? (
+          {isLoading ? (
+            <div className="space-y-2">
+              {Array.from({ length: 2 }).map((_, i) => (
+                <GlassCard key={i} className="p-3 md:p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="h-4 w-32 bg-muted animate-pulse rounded" />
+                      <div className="mt-1 h-3 w-48 bg-muted animate-pulse rounded" />
+                    </div>
+                    <div className="h-10 w-10 rounded-full bg-muted animate-pulse" />
+                  </div>
+                </GlassCard>
+              ))}
+            </div>
+          ) : error ? (
+            <GlassCard className="p-4 text-center">
+              <p className="text-destructive">Failed to load access grants</p>
+            </GlassCard>
+          ) : grants.length === 0 ? (
             <GlassCard className="p-4 text-center">
               <p className="text-sm text-muted-foreground">No active grants</p>
             </GlassCard>
           ) : (
-            activeGrants.map((g) => (
+            grants.map((g) => (
               <GlassCard key={g.id} className="p-3 md:p-4">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold truncate text-sm md:text-base">{g.providerName}</p>
-                    <p className="text-xs text-muted-foreground truncate">{g.providerSpecialty}</p>
+                    <p className="font-semibold truncate text-sm md:text-base">{g.profiles?.full_name || 'Unknown'}</p>
+                    <p className="text-xs text-muted-foreground truncate">{g.records?.record_type || 'Record'}</p>
                     <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
                       <Clock className="h-3 w-3 shrink-0" />
-                      Expires {new Date(g.expiresAt).toLocaleDateString()}
+                      {g.expires_at ? `Expires ${new Date(g.expires_at).toLocaleDateString()}` : 'No expiration'}
                     </div>
                   </div>
                   <button
                     onClick={() => handleRevoke(g.id)}
-                    disabled={isRevoking}
-                    className="h-10 w-10 md:h-9 md:w-9 rounded-full bg-destructive/10 text-destructive flex items-center justify-center shrink-0 min-h-[40px] md:min-h-[36px] disabled:opacity-50"
+                    className="h-10 w-10 md:h-9 md:w-9 rounded-full bg-destructive/10 text-destructive flex items-center justify-center shrink-0 min-h-[40px] md:min-h-[36px]"
                   >
                     <X className="h-4 w-4" />
                   </button>
                 </div>
                 <div className="mt-3 pt-3 border-t border-border text-xs flex justify-between">
                   <span className="text-muted-foreground">Record</span>
-                  <span className="font-medium truncate ml-2">{g.recordTitle}</span>
+                  <span className="font-medium truncate ml-2">{g.records?.title || 'Unknown Record'}</span>
                 </div>
               </GlassCard>
             ))

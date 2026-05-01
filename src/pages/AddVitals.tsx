@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Heart, Droplet, Thermometer, Scale, Activity } from "lucide-react";
+import { ArrowLeft, Heart, Droplet, Thermometer, Scale, Activity, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { GlassCard } from "@/components/GlassCard";
 import { usePrivy } from "@privy-io/react-auth";
 import { toast } from "sonner";
+import { useVitals } from "@/hooks/useVitals";
 
 export default function AddVitals() {
   const navigate = useNavigate();
   const { user } = usePrivy();
+  const { createVital } = useVitals();
   
   const [heartRate, setHeartRate] = useState("");
   const [systolic, setSystolic] = useState("");
@@ -29,6 +31,7 @@ export default function AddVitals() {
     
     try {
       const vitalsData = {
+        patient_wallet: user?.wallet?.address || '',
         heart_rate: heartRate ? parseInt(heartRate) : null,
         systolic_bp: systolic ? parseInt(systolic) : null,
         diastolic_bp: diastolic ? parseInt(diastolic) : null,
@@ -37,12 +40,9 @@ export default function AddVitals() {
         weight_kg: weight ? parseFloat(weight) : null,
         notes,
         recorded_at: new Date().toISOString(),
-        user_id: user?.id,
       };
 
-      console.log("Saving vitals:", vitalsData);
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await createVital(vitalsData);
       
       toast.success("Vitals recorded successfully!");
       navigate("/vitals");

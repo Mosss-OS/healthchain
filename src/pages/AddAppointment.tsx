@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, Clock, Video, MapPin, Stethoscope } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, Video, MapPin, Stethoscope, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { GlassCard } from "@/components/GlassCard";
 import { usePrivy } from "@privy-io/react-auth";
 import { toast } from "sonner";
+import { useAppointments } from "@/hooks/useAppointments";
 
 export default function AddAppointment() {
   const navigate = useNavigate();
   const { user } = usePrivy();
+  const { createAppointment, isLoading: isCreating } = useAppointments();
   
   const [title, setTitle] = useState("");
   const [providerName, setProviderName] = useState("");
@@ -19,7 +21,7 @@ export default function AddAppointment() {
   const [location, setLocation] = useState("");
   const [meetingLink, setMeetingLink] = useState("");
   const [notes, setNotes] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmiting, setIsSubmitting] = useState(false);
 
   const specialties = [
     "General Practice",
@@ -50,21 +52,18 @@ export default function AddAppointment() {
     
     try {
       const appointmentData = {
+        patient_wallet: user?.wallet?.address || '',
+        provider_wallet: '', // Would need to be fetched from providers table
         title,
         provider_name: providerName,
         provider_specialty: providerSpecialty,
         scheduled_at: new Date(`${date}T${time}`).toISOString(),
-        is_virtual: isVirtual,
-        location: isVirtual ? "" : location,
+        status: 'scheduled' as const,
         meeting_link: isVirtual ? meetingLink : "",
         notes,
-        status: "scheduled",
-        user_id: user?.id,
       };
 
-      console.log("Saving appointment:", appointmentData);
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await createAppointment(appointmentData);
       
       toast.success("Appointment booked successfully!");
       navigate("/appointments");
